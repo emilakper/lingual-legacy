@@ -71,9 +71,16 @@ func main() {
 	v1 := router.Group("/api/v1")
 	{
 		v1.GET("/courses", api.GetCourses(db))
-		v1.GET("/courses/:id", api.GetCourse(db))
+		v1.GET("/courses/:id", api.GetCourseById(db))
 		v1.POST("/auth/register", api.RegisterUser(db))
 		v1.POST("/auth/login", api.LoginUser(db))
+
+		// Защищенные пути
+		v1.GET("/courses/:id/lessons", api.JWTAuthMiddleware(), api.GetCourseLessons(db))
+		v1.GET("/lessons/:id", api.JWTAuthMiddleware(), api.GetLessonByID(db))
+		v1.GET("/users/me", api.JWTAuthMiddleware(), api.GetUser(db))
+		v1.GET("/lessons/:id/tasks", api.JWTAuthMiddleware(), api.GetLessonTasks(db))
+		v1.POST("/tasks/:id/check", api.JWTAuthMiddleware(), api.CheckTaskAnswer(db))
 	}
 
 	router.Run(":8081")

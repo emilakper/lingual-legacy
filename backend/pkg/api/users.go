@@ -2,11 +2,13 @@ package api
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"regexp"
 	"strconv"
+	"strings"
 	"time"
 
 	"ling-leg-back/pkg/models"
@@ -138,5 +140,101 @@ func LoginUser(db *sql.DB) gin.HandlerFunc {
 			"message": "Вход выполнен успешно",
 			"token":   tokenString,
 		})
+	}
+}
+
+// Middleware для проверки JWT
+func JWTAuthMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Получаем токен из заголовка Authorization
+		authHeader := c.GetHeader("Authorization")
+		if authHeader == "" {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Отсутствует заголовок Authorization"})
+			return
+		}
+
+		jwtSecret = []byte(os.Getenv("JWT_SECRET"))
+
+		// Токен должен быть в формате "Bearer <token>"
+		parts := strings.SplitN(authHeader, " ", 2)
+
+		if !(len(parts) == 2 && parts[0] == "Bearer") {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Неверный формат токена"})
+			return
+		}
+
+		// Парсинг и валидация JWT
+		token, err := jwt.Parse(parts[1], func(token *jwt.Token) (interface{}, error) {
+			// Проверяем алгоритм подписи
+			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+				return nil, fmt.Errorf("неожиданный метод подписи: %v", token.Header["alg"])
+			}
+			return jwtSecret, nil
+		})
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Неверный или просроченный токен"})
+			return
+		}
+
+		// Проверяем claims и устанавливаем ID пользователя в контекст Gin
+		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+			userIDStr, ok := claims["sub"].(string)
+			if !ok {
+				c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Неверный  формат  ID  пользователя  в  токене"})
+				return
+			}
+			userID, err := strconv.ParseInt(userIDStr, 10, 64)
+
+			if err != nil {
+				c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при обработке токена"})
+				fmt.Println(err)
+				return
+			}
+			// Устанавливаем ID пользователя в контекст Gin
+			c.Set("user_id", userID)
+		} else {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Неверный или просроченный токен"})
+			return
+		}
+
+		// Если  всё  в  порядке,  продолжаем  выполнение  запроса
+		c.Next()
+	}
+}
+
+// GetUser - обработчик для GET /api/v1/users/me
+func GetUser(db *sql.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Получаем ID пользователя из контекста Gin
+		userID, exists := c.Get("user_id")
+		if !exists {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при получении ID пользователя"})
+			return
+		}
+
+		// Преобразуем  ID  в  int64
+		userIDInt, ok := userID.(int64)
+		if !ok {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при  преобразовании ID пользователя"})
+			return
+		}
+
+		// Получение  данных  пользователя  из  базы  данных
+		var user models.User
+		err := db.QueryRow("SELECT * FROM users WHERE id = $1", userIDInt).Scan(
+			&user.ID, &user.Email, &user.Password, &user.CreatedAt,
+		)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				c.JSON(http.StatusNotFound, gin.H{"error": "Пользователь не найден"})
+				return
+			}
+			log.Printf("Ошибка  при  получении  пользователя:  %v", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка  сервера"})
+			return
+		}
+
+		// Отправка данных пользователя в ответе
+		c.JSON(http.StatusOK, user)
 	}
 }

@@ -35,3 +35,12 @@ type Task struct {
 	Content   string    `db:"content" json:"content"`
 	CreatedAt time.Time `db:"created_at" json:"created_at"`
 }
+
+// Модель варианта задания
+type TaskOption struct {
+	ID        int64     `db:"id" json:"id"`
+	TaskID    int64     `db:"task_id" json:"task_id"`
+	Text      string    `db:"text" json:"text"`
+	IsCorrect bool      `db:"is_correct" json:"is_correct"`
+	CreatedAt time.Time `db:"created_at" json:"created_at"`
+}

@@ -4,14 +4,21 @@ import (
 	"database/sql"
 	"log"
 	"net/http"
+	"os"
 	"regexp"
+	"strconv"
+	"time"
 
 	"ling-leg-back/pkg/models"
 
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/lib/pq"
 	"golang.org/x/crypto/bcrypt"
 )
+
+// Секретный ключ для подписи токенов
+var jwtSecret = []byte(os.Getenv("JWT_SECRET"))
 
 // RegisterUser - обработчик для POST /api/v1/auth/register
 func RegisterUser(db *sql.DB) gin.HandlerFunc {
@@ -78,4 +85,58 @@ func RegisterUser(db *sql.DB) gin.HandlerFunc {
 func isValidEmail(email string) bool {
 	re := regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
 	return re.MatchString(email)
+}
+
+// LoginUser - обработчик для POST /api/v1/auth/login
+func LoginUser(db *sql.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// 1. Получение данных для входа из запроса
+		var credentials struct {
+			Email    string `json:"email"`
+			Password string `json:"password"`
+		}
+		if err := c.ShouldBindJSON(&credentials); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Неверный формат JSON"})
+			return
+		}
+
+		// 2. Поиск пользователя по email
+		var user models.User
+		err := db.QueryRow("SELECT * FROM users WHERE email = $1", credentials.Email).Scan(
+			&user.ID, &user.Email, &user.Password, &user.CreatedAt,
+		)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				c.JSON(http.StatusUnauthorized, gin.H{"error": "Неверный email или пароль"})
+				return
+			}
+			log.Printf("Ошибка при поиске пользователя: %v", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка сервера"})
+			return
+		}
+
+		// 3. Сравнение хэшей паролей
+		if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(credentials.Password)); err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Неверный email или пароль"})
+			return
+		}
+
+		// 4. Генерация JWT-токена
+		expirationTime := time.Now().Add(24 * time.Hour) // Время жизни токена - 24 часа
+		claims := &jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(expirationTime),
+			Subject:   strconv.FormatInt(user.ID, 10),
+		}
+		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+		tokenString, err := token.SignedString(jwtSecret)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при генерации токена"})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Вход выполнен успешно",
+			"token":   tokenString,
+		})
+	}
 }

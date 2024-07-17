@@ -71,6 +71,8 @@ func main() {
 	v1 := router.Group("/api/v1")
 	{
 		v1.GET("/courses", api.GetCourses(db))
+		v1.GET("/courses/:id", api.GetCourse(db))
+		v1.POST("/auth/register", api.RegisterUser(db))
 	}
 
 	router.Run(":8081")

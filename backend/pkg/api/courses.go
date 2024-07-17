@@ -5,6 +5,7 @@ import (
 	"ling-leg-back/pkg/models"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -39,5 +40,35 @@ func GetCourses(db *sql.DB) gin.HandlerFunc {
 			"message": "Список курсов",
 			"courses": courses,
 		})
+	}
+}
+
+// GetCourse - обработчик для GET /api/v1/courses/:id
+func GetCourse(db *sql.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Получение ID курса из параметра запроса
+		courseID, err := strconv.Atoi(c.Param("id")) // Преобразование строки в число
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Неверный ID курса"})
+			return
+		}
+
+		// Получение курса из базы данных
+		var course models.Course
+		err = db.QueryRow("SELECT id, title, description, created_at FROM courses WHERE id = $1", courseID).Scan(
+			&course.ID, &course.Title, &course.Description, &course.CreatedAt,
+		)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				c.JSON(http.StatusNotFound, gin.H{"error": "Курс не найден"})
+				return
+			}
+			log.Printf("Ошибка при получении курса: %v", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка сервера"})
+			return
+		}
+
+		// Отправка ответа
+		c.JSON(http.StatusOK, course)
 	}
 }

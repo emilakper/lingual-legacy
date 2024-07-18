@@ -1,29 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import HomePage from './pages/HomePage';
+import CourseList from './pages/CourseList'; 
+import Login from './pages/Login';  
+import Register from './pages/Register';  
+import Course from './pages/Course';  
 
 function App() {
-  const [message, setMessage] = useState('');
-
-  useEffect(() => {
-    // Функция для получения данных с бэкенда
-    const fetchData = async () => {
-      try {
-        const response = await fetch('/api/hello');
-        const data = await response.json();
-        setMessage(data.message);
-      } catch (error) {
-        console.error("Ошибка при получении данных:", error);
-        setMessage('Ошибка при загрузке данных');
-      }
-    };
-
-    fetchData();
-  }, []);
-
   return (
-    <div>
-      <h1>Lingua Legacy</h1>
-      <p>{message}</p> 
-    </div>
+    <Router> 
+      <div>
+        <Routes> 
+          <Route path="/" element={<HomePage />} />
+          <Route path="/courses" element={<CourseList />} />
+          <Route path="/login" element={<Login />} /> 
+          <Route path="/register" element={<Register />} /> 
+          <Route path="/courses/:id" element={<Course />} /> 
+        </Routes>
+      </div>
+    </Router>
   );
 }
 

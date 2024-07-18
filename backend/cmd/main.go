@@ -9,6 +9,7 @@ import (
 	"ling-leg-back/pkg/api"
 	"ling-leg-back/pkg/models"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
@@ -66,6 +67,15 @@ func main() {
 
 	// Инициализация роутера Gin
 	router := gin.Default()
+
+	// Настройка CORS
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:3000"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+	}))
 
 	// Версия API
 	v1 := router.Group("/api/v1")

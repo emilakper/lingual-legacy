@@ -153,7 +153,7 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		jwtSecret = []byte(os.Getenv("JWT_SECRET"))
+		//jwtSecret = []byte(os.Getenv("JWT_SECRET"))
 
 		// Токен должен быть в формате "Bearer <token>"
 		parts := strings.SplitN(authHeader, " ", 2)

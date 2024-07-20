@@ -1,39 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import CourseCard from '../components/CourseCard';
-import axios from 'axios';
 
-function CourseList() {
-  const [courses, setCourses] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+function About() {
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  useEffect(() => {
-    const fetchCourses = async () => {
-      try {
-        const response = await axios.get('http://localhost:8081/api/v1/courses');
-        setCourses(response.data.courses); 
-      } catch (error) {
-        console.error("Ошибка при получении курсов:", error);
-      }
-    };
-
-    fetchCourses();
-  }, []);
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    setIsLoggedIn(false); 
-  };
-
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    setIsLoggedIn(!!token); 
-  }, []); 
-
-  const filteredCourses = courses.filter(course => 
-    course.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+    const handleLogout = () => {
+        localStorage.removeItem('token');
+        setIsLoggedIn(false); 
+      };
+    
+      useEffect(() => {
+        const token = localStorage.getItem('token');
+        setIsLoggedIn(!!token); 
+      }, []); 
 
   return (
     <div className="bg-gray-100 min-h-screen flex flex-col"> 
@@ -66,19 +45,18 @@ function CourseList() {
       </header>
 
       <main className="container mx-auto py-12 flex-grow"> 
-        <div className="flex items-center mb-4">
-          <input 
-            type="text" 
-            placeholder="Поиск курсов" 
-            value={searchTerm} 
-            onChange={(e) => setSearchTerm(e.target.value)} 
-            className="border rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+        <div className="text-center mb-8">
+          <h2 className="text-4xl font-bold text-gray-800">О нас</h2>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredCourses.map((course) => (
-            <CourseCard key={course.id} course={course} /> 
-          ))}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="p-6 bg-white rounded-md shadow-md">
+            <h3 className="text-2xl font-bold mb-4">Наша миссия</h3>
+            <p className="text-gray-600">Наша миссия - сделать изучение языков всех народов России и стан СНГ доступным и интересным. Мы предлагаем широкий выбор курсов, которые помогут сохранить и распространитить знания и диалекты языков.</p>
+          </div>
+          <div className="p-6 bg-white rounded-md shadow-md">
+            <h3 className="text-2xl font-bold mb-4">Наша команда</h3>
+            <p className="text-gray-600">В нашей команде работают начинающие программисты и мы будем рады помощи от лингвистов или просто представителей различных народов в составлении курсов.</p>
+          </div>
         </div>
       </main>
 
@@ -91,4 +69,5 @@ function CourseList() {
   );
 }
 
-export default CourseList;
+export default About;
+

@@ -5,6 +5,8 @@ import CourseList from './pages/CourseList';
 import Login from './pages/Login';  
 import Register from './pages/Register';  
 import Course from './pages/Course';  
+import About from './pages/About';
+import Contacts from './pages/Contacts';
 
 function App() {
   return (
@@ -16,6 +18,8 @@ function App() {
           <Route path="/login" element={<Login />} /> 
           <Route path="/register" element={<Register />} /> 
           <Route path="/courses/:id" element={<Course />} /> 
+          <Route path="/about" element={<About />} />
+          <Route path="/contacts" element={<Contacts />} />
         </Routes>
       </div>
     </Router>

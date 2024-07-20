@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import CourseList from './pages/CourseList'; 
 import Login from './pages/Login';  
@@ -7,6 +7,7 @@ import Register from './pages/Register';
 import Course from './pages/Course';  
 import About from './pages/About';
 import Contacts from './pages/Contacts';
+import Lesson from './pages/Lesson';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           <Route path="/courses/:id" element={<Course />} /> 
           <Route path="/about" element={<About />} />
           <Route path="/contacts" element={<Contacts />} />
+          <Route path="/lessons/:id" element={<Lesson />} />
         </Routes>
       </div>
     </Router>

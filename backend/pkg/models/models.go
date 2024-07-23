@@ -4,10 +4,11 @@ import "time"
 
 // Модель пользователя
 type User struct {
-	ID        int64     `db:"id" json:"id"`
-	Email     string    `db:"email" json:"email"`
-	Password  string    `db:"password_hash" json:"password"`
-	CreatedAt time.Time `db:"created_at" json:"created_at"`
+	ID        int64     `json:"id"`
+	Email     string    `json:"email"`
+	Password  string    `json:"password"`
+	IsAdmin   bool      `json:"is_admin"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 // Модель курса

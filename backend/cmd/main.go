@@ -93,5 +93,39 @@ func main() {
 		v1.POST("/tasks/:id/check", api.JWTAuthMiddleware(), api.CheckTaskAnswer(db))
 	}
 
+	//  Регистрация  администратора  (POST  /admin/auth/register)
+	router.POST("/admin/auth/register", api.RegisterAdminUser(db))
+
+	//  Авторизация  администратора  (POST  /admin/auth/login)
+	router.POST("/admin/auth/login", api.LoginAdminUser(db))
+
+	//  Защищенные  пути  для  административной  панели
+	admin := router.Group("/admin")
+	{
+		//  Администратор  -  данные  курсов
+		admin.GET("/courses", api.JWTAuthMiddleware(), api.GetAdminCourses(db))
+		admin.POST("/courses", api.JWTAuthMiddleware(), api.CreateAdminCourse(db))
+		admin.PUT("/courses/:id", api.JWTAuthMiddleware(), api.UpdateAdminCourse(db))
+		admin.DELETE("/courses/:id", api.JWTAuthMiddleware(), api.DeleteAdminCourse(db))
+
+		//  Администратор  -  данные  уроков
+		admin.GET("/lessons", api.JWTAuthMiddleware(), api.GetAdminLessons(db))
+		admin.POST("/lessons", api.JWTAuthMiddleware(), api.CreateAdminLesson(db))
+		admin.PUT("/lessons/:id", api.JWTAuthMiddleware(), api.UpdateAdminLesson(db))
+		admin.DELETE("/lessons/:id", api.JWTAuthMiddleware(), api.DeleteAdminLesson(db))
+
+		//  Администратор  -  данные  заданий
+		admin.GET("/tasks", api.JWTAuthMiddleware(), api.GetAdminTasks(db))
+		admin.POST("/tasks", api.JWTAuthMiddleware(), api.CreateAdminTask(db))
+		admin.PUT("/tasks/:id", api.JWTAuthMiddleware(), api.UpdateAdminTask(db))
+		admin.DELETE("/tasks/:id", api.JWTAuthMiddleware(), api.DeleteAdminTask(db))
+
+		//  Администратор  -  данные  вариантов  ответов
+		admin.GET("/task_options", api.JWTAuthMiddleware(), api.GetAdminTaskOptions(db))
+		admin.POST("/task_options", api.JWTAuthMiddleware(), api.CreateAdminTaskOption(db))
+		admin.PUT("/task_options/:id", api.JWTAuthMiddleware(), api.UpdateAdminTaskOption(db))
+		admin.DELETE("/task_options/:id", api.JWTAuthMiddleware(), api.DeleteAdminTaskOption(db))
+	}
+
 	router.Run(":8081")
 }

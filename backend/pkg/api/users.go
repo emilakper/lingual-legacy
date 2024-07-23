@@ -105,7 +105,7 @@ func LoginUser(db *sql.DB) gin.HandlerFunc {
 		// 2. Поиск пользователя по email
 		var user models.User
 		err := db.QueryRow("SELECT * FROM users WHERE email = $1", credentials.Email).Scan(
-			&user.ID, &user.Email, &user.Password, &user.CreatedAt,
+			&user.ID, &user.Email, &user.Password, &user.IsAdmin, &user.CreatedAt,
 		)
 		if err != nil {
 			if err == sql.ErrNoRows {

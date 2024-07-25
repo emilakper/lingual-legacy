@@ -118,6 +118,161 @@ func LoginAdminUser(db *sql.DB) gin.HandlerFunc {
 	}
 }
 
+// GetAdminUsers - обработчик для GET /admin/users
+func GetAdminUsers(db *sql.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Выполнение SQL-запроса
+		rows, err := db.Query("SELECT id, email, is_admin, created_at FROM users")
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка сервера"})
+			return
+		}
+		defer rows.Close()
+
+		// Обработка результатов запроса
+		var users []models.User
+		for rows.Next() {
+			var user models.User
+			err := rows.Scan(&user.ID, &user.Email, &user.IsAdmin, &user.CreatedAt)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка сервера"})
+				return
+			}
+			users = append(users, user)
+		}
+
+		userCount := len(users)
+
+		// Отправка ответа
+		c.JSON(http.StatusOK, gin.H{
+			"users":     users,
+			"userCount": userCount,
+		})
+	}
+}
+
+// CreateAdminUser - обработчик для POST /admin/users
+func CreateAdminUser(db *sql.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// 1. Получение данных пользователя из запроса
+		var user models.User
+		if err := c.ShouldBindJSON(&user); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Неверный формат JSON"})
+			return
+		}
+
+		// 2. Проверка пароля
+		if len(user.Password) < 6 {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Пароль должен содержать не менее 6 символов"})
+			return
+		}
+
+		// 3. Хэширование пароля
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+		if err != nil {
+			log.Printf("Ошибка при хэшировании пароля: %v", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка сервера"})
+			return
+		}
+		user.Password = string(hashedPassword)
+
+		// 4. Сохранение пользователя в базе данных
+		var userID int64
+		sqlStatement := `
+	  INSERT INTO users (email, password_hash, is_admin)
+	  VALUES ($1, $2, $3)
+	  ON CONFLICT (email) DO NOTHING 
+	  RETURNING id`
+		err = db.QueryRow(sqlStatement, user.Email, user.Password, user.IsAdmin).Scan(&userID)
+		if err != nil {
+			if pgErr, ok := err.(*pq.Error); ok && pgErr.Code.Name() == "unique_violation" {
+				c.JSON(http.StatusConflict, gin.H{"error": "Пользователь с таким email уже существует"})
+				return
+			}
+			log.Printf("Ошибка при сохранении пользователя: %v", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка сервера"})
+			return
+		}
+
+		// 5. Отправка ответа
+		c.JSON(http.StatusCreated, gin.H{
+			"message": "Пользователь успешно создан",
+			"user_id": userID,
+		})
+	}
+}
+
+// UpdateAdminUser - обработчик для PUT /admin/users/:id
+func UpdateAdminUser(db *sql.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// 1. Получение ID пользователя из параметров URL
+		userID, err := strconv.ParseInt(c.Param("id"), 10, 64)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Неверный ID пользователя"})
+			return
+		}
+
+		// 2. Получение данных пользователя из запроса
+		var user models.User
+		if err := c.ShouldBindJSON(&user); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Неверный формат JSON"})
+			return
+		}
+
+		// 3. Проверка пароля
+		if user.Password != "" {
+			hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+			if err != nil {
+				log.Printf("Ошибка при хэшировании пароля: %v", err)
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка сервера"})
+				return
+			}
+			user.Password = string(hashedPassword)
+		}
+
+		// 4. Обновление данных пользователя в базе данных
+		sqlStatement := `
+   UPDATE users 
+   SET email = $1, password_hash = $2, is_admin = $3
+   WHERE id = $4`
+		_, err = db.Exec(sqlStatement, user.Email, user.Password, user.IsAdmin, userID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка сервера"})
+			return
+		}
+
+		// 5. Отправка ответа
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Пользователь успешно обновлен",
+		})
+	}
+}
+
+// DeleteAdminUser - обработчик для DELETE /admin/users/:id
+func DeleteAdminUser(db *sql.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// 1. Получение ID пользователя из параметров URL
+		userID, err := strconv.ParseInt(c.Param("id"), 10, 64)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Неверный ID пользователя"})
+			return
+		}
+
+		// 2. Удаление пользователя из базы данных
+		sqlStatement := `DELETE FROM users WHERE id = $1`
+		_, err = db.Exec(sqlStatement, userID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка сервера"})
+			return
+		}
+
+		// 3. Отправка ответа
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Пользователь успешно удален",
+		})
+	}
+}
+
 // GetAdminCourses  -  обработчик  для  GET  /admin/courses
 func GetAdminCourses(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -141,9 +296,12 @@ func GetAdminCourses(db *sql.DB) gin.HandlerFunc {
 			courses = append(courses, course)
 		}
 
+		coursesCount := len(courses)
+
 		//  Отправка  ответа
 		c.JSON(http.StatusOK, gin.H{
-			"courses": courses,
+			"courses":      courses,
+			"coursesCount": coursesCount,
 		})
 	}
 }
@@ -262,9 +420,12 @@ func GetAdminLessons(db *sql.DB) gin.HandlerFunc {
 			lessons = append(lessons, lesson)
 		}
 
+		lessonsCount := len(lessons)
+
 		//  Отправка  ответа
 		c.JSON(http.StatusOK, gin.H{
-			"lessons": lessons,
+			"lessons":      lessons,
+			"lessonsCount": lessonsCount,
 		})
 	}
 }
@@ -383,9 +544,12 @@ func GetAdminTasks(db *sql.DB) gin.HandlerFunc {
 			tasks = append(tasks, task)
 		}
 
+		tasksCount := len(tasks)
+
 		//  Отправка  ответа
 		c.JSON(http.StatusOK, gin.H{
-			"tasks": tasks,
+			"tasks":      tasks,
+			"tasksCount": tasksCount,
 		})
 	}
 }
@@ -504,9 +668,12 @@ func GetAdminTaskOptions(db *sql.DB) gin.HandlerFunc {
 			taskOptions = append(taskOptions, taskOption)
 		}
 
+		taskOptionsCount := len(taskOptions)
+
 		//  Отправка  ответа
 		c.JSON(http.StatusOK, gin.H{
-			"task_options": taskOptions,
+			"task_options":      taskOptions,
+			"task_optionsCount": taskOptionsCount,
 		})
 	}
 }

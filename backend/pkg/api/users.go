@@ -220,7 +220,7 @@ func GetUser(db *sql.DB) gin.HandlerFunc {
 		// Получение  данных  пользователя  из  базы  данных
 		var user models.User
 		err := db.QueryRow("SELECT * FROM users WHERE id = $1", userIDInt).Scan(
-			&user.ID, &user.Email, &user.Password, &user.CreatedAt,
+			&user.ID, &user.Email, &user.Password, &user.IsAdmin, &user.CreatedAt,
 		)
 		if err != nil {
 			if err == sql.ErrNoRows {

@@ -70,7 +70,7 @@ func main() {
 
 	// Настройка CORS
 	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:3000"},
+		AllowOrigins:     []string{"http://localhost:3000", "http://localhost:3001"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
@@ -102,6 +102,12 @@ func main() {
 	//  Защищенные  пути  для  административной  панели
 	admin := router.Group("/admin")
 	{
+		//  Администратор  -  данные  пользователей
+		admin.GET("/users", api.JWTAuthMiddleware(), api.GetAdminUsers(db))
+		admin.POST("/users", api.JWTAuthMiddleware(), api.CreateAdminUser(db))
+		admin.PUT("/users/:id", api.JWTAuthMiddleware(), api.UpdateAdminUser(db))
+		admin.DELETE("/users/:id", api.JWTAuthMiddleware(), api.DeleteAdminUser(db))
+
 		//  Администратор  -  данные  курсов
 		admin.GET("/courses", api.JWTAuthMiddleware(), api.GetAdminCourses(db))
 		admin.POST("/courses", api.JWTAuthMiddleware(), api.CreateAdminCourse(db))

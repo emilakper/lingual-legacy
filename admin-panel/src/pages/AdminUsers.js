@@ -1,10 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import UserModal from '../components/UserModal';
 
 function AdminUsers() {
   const navigate = useNavigate();
   const [users, setUsers] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null); 
 
   const handleLogout = () => {
     localStorage.removeItem('adminToken');
@@ -25,7 +28,6 @@ function AdminUsers() {
           Authorization: `Bearer ${adminToken}`,
         },
       });
-      console.log(response.data.users)
       setUsers(response.data.users);
     } catch (error) {
       console.error("Ошибка получения пользователей:", error);
@@ -61,8 +63,55 @@ function AdminUsers() {
   };
 
   const handleCreateUser = () => {
-    navigate('/admin/users/create'); // Пока думаю
+    setIsModalOpen(true);
+    setSelectedUser(null); 
   };
+
+  const handleEditUser = (user) => {
+    setIsModalOpen(true);
+    setSelectedUser(user);
+    console.log(selectedUser)
+  };
+
+  const handleSaveUser = async (updatedUser) => {
+    const adminToken = localStorage.getItem('adminToken');
+
+    if (!adminToken) {
+      navigate('/login');
+      return;
+    }
+
+  try {
+    let response;
+    if (selectedUser) {
+      //  Обновление  существующего  пользователя
+      response = await axios.put(`http://localhost:8081/admin/users/${selectedUser.id}`, updatedUser, {
+        headers: {
+          Authorization: `Bearer ${adminToken}`,
+        },
+      });
+    } else {
+      //  Создание  нового  пользователя
+      response = await axios.post('http://localhost:8081/admin/users', updatedUser, {
+        headers: {
+          Authorization: `Bearer ${adminToken}`,
+        },
+      });
+    }
+    // Обновление  списка  пользователей
+    fetchUsers();
+    setIsModalOpen(false); 
+  } catch (error) {
+    console.error("Ошибка сохранения пользователя:", error);
+    // Добавить обработку ошибки, например, отображение сообщения пользователю
+  }
+};
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedUser(null);
+  };
+  
 
   return (
     <div className="bg-gray-100 min-h-screen flex flex-col">
@@ -99,7 +148,7 @@ function AdminUsers() {
               </tr>
             </thead>
             <tbody>
-            {users.map((user) => (
+              {users.map((user) => (
                 <tr key={user.id} className="hover:bg-gray-100 transition duration-300 ease-in-out">
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{user.id}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{user.email}</td>
@@ -116,7 +165,7 @@ function AdminUsers() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                     <div className="flex space-x-2">
-                      <Link to={`/admin/users/${user.id}`} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Редактировать</Link>
+                      <button onClick={() => handleEditUser(user)} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Редактировать</button>
                       <button onClick={() => handleDeleteUser(user.id)} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">Удалить</button>
                     </div>
                   </td>
@@ -126,6 +175,13 @@ function AdminUsers() {
           </table>
         </div>
         <button onClick={handleCreateUser} className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mt-4">Создать пользователя</button>
+        <UserModal 
+          isOpen={isModalOpen} 
+          onClose={handleCloseModal} 
+          user={selectedUser}
+          onSave={handleSaveUser}
+          onDelete={handleDeleteUser}
+        />
       </main>
 
       <footer className="bg-gray-200 py-4 mt-8">

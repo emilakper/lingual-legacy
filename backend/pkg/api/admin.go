@@ -2,6 +2,7 @@ package api
 
 import (
 	"database/sql"
+	"fmt"
 	"ling-leg-back/pkg/models"
 	"log"
 	"net/http"
@@ -186,6 +187,7 @@ func CreateAdminUser(db *sql.DB) gin.HandlerFunc {
 		err = db.QueryRow(sqlStatement, user.Email, user.Password, user.IsAdmin).Scan(&userID)
 		if err != nil {
 			if pgErr, ok := err.(*pq.Error); ok && pgErr.Code.Name() == "unique_violation" {
+				fmt.Println(user)
 				c.JSON(http.StatusConflict, gin.H{"error": "Пользователь с таким email уже существует"})
 				return
 			}
@@ -220,6 +222,11 @@ func UpdateAdminUser(db *sql.DB) gin.HandlerFunc {
 		}
 
 		// 3. Проверка пароля
+		if user.Password != "" && len(user.Password) < 6 {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Пароль должен быть не менее 6 символов"})
+			return
+		}
+		var passwordHash interface{}
 		if user.Password != "" {
 			hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 			if err != nil {
@@ -227,15 +234,19 @@ func UpdateAdminUser(db *sql.DB) gin.HandlerFunc {
 				c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка сервера"})
 				return
 			}
-			user.Password = string(hashedPassword)
+			passwordHash = string(hashedPassword)
+		} else {
+			passwordHash = sql.NullString{}
 		}
 
 		// 4. Обновление данных пользователя в базе данных
 		sqlStatement := `
-   UPDATE users 
-   SET email = $1, password_hash = $2, is_admin = $3
-   WHERE id = $4`
-		_, err = db.Exec(sqlStatement, user.Email, user.Password, user.IsAdmin, userID)
+		UPDATE users 
+		SET email = $1, 
+		    password_hash = CASE WHEN $2::text IS NOT NULL THEN $2 ELSE password_hash END, 
+		    is_admin = $3
+		WHERE id = $4`
+		_, err = db.Exec(sqlStatement, user.Email, passwordHash, user.IsAdmin, userID)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка сервера"})
 			return

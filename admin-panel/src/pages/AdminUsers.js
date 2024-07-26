@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import UserModal from '../components/UserModal';
+import { toast } from 'react-toastify';
 
 function AdminUsers() {
   const navigate = useNavigate();
@@ -56,8 +57,10 @@ function AdminUsers() {
       });
       // Обновить список пользователей после удаления
       fetchUsers(); 
+      toast.success('Пользователь успешно удален');
     } catch (error) {
       console.error("Ошибка удаления пользователя:", error);
+      toast.error('Ошибка при удалении пользователя');
       // Добавить обработку ошибки, например, отображение сообщения пользователю
     }
   };
@@ -101,8 +104,10 @@ function AdminUsers() {
     // Обновление  списка  пользователей
     fetchUsers();
     setIsModalOpen(false); 
+    toast.success('Изменения применены успешно');
   } catch (error) {
     console.error("Ошибка сохранения пользователя:", error);
+    toast.error('Изменения не применены');
     // Добавить обработку ошибки, например, отображение сообщения пользователю
   }
 };

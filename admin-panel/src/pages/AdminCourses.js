@@ -1,21 +1,21 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import UserModal from '../components/UserModal';
+import CourseModal from '../components/CourseModal';
 import { toast } from 'react-toastify';
 
-function AdminUsers() {
+function AdminCourses() {
   const navigate = useNavigate();
-  const [users, setUsers] = useState([]);
+  const [courses, setCourses] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState(null); 
+  const [selectedCourse, setSelectedCourse] = useState(null); 
 
   const handleLogout = () => {
     localStorage.removeItem('adminToken');
     navigate('/login'); 
   };
 
-  const fetchUsers = useCallback(async () => {
+  const fetchCourses = useCallback(async () => {
     const adminToken = localStorage.getItem('adminToken');
 
     if (!adminToken) {
@@ -24,24 +24,23 @@ function AdminUsers() {
     }
 
     try {
-      const response = await axios.get('http://localhost:8081/admin/users', {
+      const response = await axios.get('http://localhost:8081/admin/courses', {
         headers: {
           Authorization: `Bearer ${adminToken}`,
         },
       });
-      setUsers(response.data.users);
+      setCourses(response.data.courses);
     } catch (error) {
-      console.error("Ошибка получения пользователей:", error);
+      console.error("Ошибка получения курсов:", error);
       // Добавить обработку ошибки, например, отображение сообщения пользователю
     }
-  },[navigate]);
-
+  }, [navigate]);
 
   useEffect(() => {
-    fetchUsers();
-  }, [fetchUsers]);
+    fetchCourses();
+  }, [fetchCourses]);
 
-  const handleDeleteUser = async (userId) => {
+  const handleDeleteCourse = async (courseId) => {
     const adminToken = localStorage.getItem('adminToken');
 
     if (!adminToken) {
@@ -50,68 +49,62 @@ function AdminUsers() {
     }
 
     try {
-      await axios.delete(`http://localhost:8081/admin/users/${userId}`, {
+      await axios.delete(`http://localhost:8081/admin/courses/${courseId}`, {
         headers: {
           Authorization: `Bearer ${adminToken}`,
         },
       });
-      // Обновить список пользователей после удаления
-      fetchUsers(); 
-      toast.success('Пользователь успешно удален');
+      // Обновить список курсов после удаления
+      fetchCourses(); 
+      toast.success('Курс успешно удален');
     } catch (error) {
-      console.error("Ошибка удаления пользователя:", error);
-      toast.error('Ошибка при удалении пользователя');
+      console.error("Ошибка удаления курса:", error);
+      toast.error('Ошибка при удалении курса');
       // Добавить обработку ошибки, например, отображение сообщения пользователю
     }
   };
 
-  const handleCreateUser = () => {
+  const handleCreateCourse = () => {
     setIsModalOpen(true);
-    setSelectedUser(null); 
+    setSelectedCourse(null); 
   };
 
-  const handleEditUser = (user) => {
+  const handleEditCourse = (course) => {
     setIsModalOpen(true);
-    setSelectedUser(user);
+    setSelectedCourse(course);
   };
 
-  const handleSaveUser = async (updatedUser) => {
+  const handleSaveCourse = async (updatedCourse) => {
     const adminToken = localStorage.getItem('adminToken');
 
     if (!adminToken) {
       navigate('/login');
       return;
     }
-
-    const userToSave = {
-      ...updatedUser,
-      is_admin: updatedUser.isAdmin,
-    };
-    delete userToSave.isAdmin;
 
     try {
       let response;
-      if (selectedUser) {
-        //  Обновление  существующего  пользователя
-        response = await axios.put(`http://localhost:8081/admin/users/${selectedUser.id}`, userToSave, {
+      if (selectedCourse) {
+        // Обновление существующего курса
+        response = await axios.put(`http://localhost:8081/admin/courses/${selectedCourse.id}`, updatedCourse, {
           headers: {
             Authorization: `Bearer ${adminToken}`,
           },
         });
       } else {
-        //  Создание  нового  пользователя
-        response = await axios.post('http://localhost:8081/admin/users', userToSave, {
+        // Создание нового курса
+        response = await axios.post('http://localhost:8081/admin/courses', updatedCourse, {
           headers: {
             Authorization: `Bearer ${adminToken}`,
           },
         });
       }
-      // Обновление  списка  пользователей
-      fetchUsers();
+      // Обновление списка курсов
+      fetchCourses();
       setIsModalOpen(false); 
       toast.success('Изменения применены успешно');
     } catch (error) {
-      console.error("Ошибка сохранения пользователя:", error);
+      console.error("Ошибка сохранения курса:", error);
       toast.error('Изменения не применены');
       // Добавить обработку ошибки, например, отображение сообщения пользователю
     }
@@ -119,9 +112,8 @@ function AdminUsers() {
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
-    setSelectedUser(null);
+    setSelectedCourse(null);
   };
-  
 
   return (
     <div className="bg-gray-100 min-h-screen flex flex-col">
@@ -146,26 +138,26 @@ function AdminUsers() {
       </header>
 
       <main className="container mx-auto py-12 flex-grow">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">Пользователи</h2>
+        <h2 className="text-2xl font-bold text-gray-800 mb-4">Курсы</h2>
         <div className="overflow-x-auto">
           <table className="min-w-full bg-white border shadow-md rounded-lg">
             <thead>
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Администратор</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Название</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Описание</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Дата создания</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Действия</th>
               </tr>
             </thead>
             <tbody>
-              {users.map((user) => (
-                <tr key={user.id} className="hover:bg-gray-100 transition duration-300 ease-in-out">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{user.id}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{user.email}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{user.is_admin ? 'Да' : 'Нет'}</td>
+              {courses.map((course) => (
+                <tr key={course.id} className="hover:bg-gray-100 transition duration-300 ease-in-out">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{course.id}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{course.title}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{course.description}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {new Date(user.created_at).toLocaleString('en-US', {
+                    {new Date(course.created_at).toLocaleString('en-US', {
                         year: 'numeric',
                         month: '2-digit',
                         day: '2-digit',
@@ -176,8 +168,8 @@ function AdminUsers() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                     <div className="flex space-x-2">
-                      <button onClick={() => handleEditUser(user)} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Редактировать</button>
-                      <button onClick={() => handleDeleteUser(user.id)} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">Удалить</button>
+                      <button onClick={() => handleEditCourse(course)} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Редактировать</button>
+                      <button onClick={() => handleDeleteCourse(course.id)} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">Удалить</button>
                     </div>
                   </td>
                 </tr>
@@ -185,13 +177,13 @@ function AdminUsers() {
             </tbody>
           </table>
         </div>
-        <button onClick={handleCreateUser} className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mt-4">Создать пользователя</button>
-        <UserModal 
+        <button onClick={handleCreateCourse} className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mt-4">Создать курс</button>
+        <CourseModal 
           isOpen={isModalOpen} 
           onClose={handleCloseModal} 
-          user={selectedUser}
-          onSave={handleSaveUser}
-          onDelete={handleDeleteUser}
+          course={selectedCourse}
+          onSave={handleSaveCourse}
+          onDelete={handleDeleteCourse}
         />
       </main>
 
@@ -204,4 +196,4 @@ function AdminUsers() {
   );
 }
 
-export default AdminUsers;
+export default AdminCourses;

@@ -351,34 +351,35 @@ func CreateAdminCourse(db *sql.DB) gin.HandlerFunc {
 // UpdateAdminCourse  -  обработчик  для  PUT  /admin/courses/:id
 func UpdateAdminCourse(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		//  1.  Получение  ID  курса  из  параметров  URL
+		// 1. Получение ID курса из параметров URL
 		courseID, err := strconv.ParseInt(c.Param("id"), 10, 64)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Неверный  ID  курса"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Неверный ID курса"})
 			return
 		}
 
-		//  2.  Получение  данных  курса  из  запроса
+		// 2. Получение данных курса из запроса
 		var course models.Course
 		if err := c.ShouldBindJSON(&course); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Неверный  формат  JSON"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Неверный формат JSON"})
 			return
 		}
 
-		//  3.  Обновление  данных  курса  в  базе  данных
+		// 3. Обновление данных курса в базе данных
 		sqlStatement := `
 		UPDATE courses 
-		SET title = $1, description = $2 
+		SET title = COALESCE($1, title), 
+		    description = COALESCE($2, description) 
 		WHERE id = $3`
 		_, err = db.Exec(sqlStatement, course.Title, course.Description, courseID)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка  сервера"})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка сервера"})
 			return
 		}
 
-		//  4.  Отправка  ответа
+		// 4. Отправка ответа
 		c.JSON(http.StatusOK, gin.H{
-			"message": "Курс  успешно  обновлен",
+			"message": "Курс успешно обновлен",
 		})
 	}
 }
@@ -451,6 +452,9 @@ func CreateAdminLesson(db *sql.DB) gin.HandlerFunc {
 			return
 		}
 
+		// Вывод полученных данных для отладки
+		fmt.Printf("Полученный урок: %+v\n", lesson)
+
 		//  2.  Сохранение  урока  в  базу  данных
 		var lessonID int64 //  Переменная  для  ID  нового  урока
 		sqlStatement := `
@@ -475,34 +479,36 @@ func CreateAdminLesson(db *sql.DB) gin.HandlerFunc {
 // UpdateAdminLesson  -  обработчик  для  PUT  /admin/lessons/:id
 func UpdateAdminLesson(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		//  1.  Получение  ID  урока  из  параметров  URL
+		// 1. Получение ID урока из параметров URL
 		lessonID, err := strconv.ParseInt(c.Param("id"), 10, 64)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Неверный  ID  урока"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Неверный ID урока"})
 			return
 		}
 
-		//  2.  Получение  данных  урока  из  запроса
+		// 2. Получение данных урока из запроса
 		var lesson models.Lesson
 		if err := c.ShouldBindJSON(&lesson); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Неверный  формат  JSON"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Неверный формат JSON"})
 			return
 		}
 
-		//  3.  Обновление  данных  урока  в  базе  данных
+		// 3. Обновление данных урока в базе данных
 		sqlStatement := `
 		UPDATE lessons 
-		SET course_id = $1, title = $2, content = $3 
+		SET course_id = COALESCE($1, course_id), 
+		    title = COALESCE($2, title), 
+		    content = COALESCE($3, content) 
 		WHERE id = $4`
 		_, err = db.Exec(sqlStatement, lesson.CourseID, lesson.Title, lesson.Content, lessonID)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка  сервера"})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка сервера"})
 			return
 		}
 
-		//  4.  Отправка  ответа
+		// 4. Отправка ответа
 		c.JSON(http.StatusOK, gin.H{
-			"message": "Урок  успешно  обновлен",
+			"message": "Урок успешно обновлен",
 		})
 	}
 }
@@ -571,6 +577,7 @@ func CreateAdminTask(db *sql.DB) gin.HandlerFunc {
 		//  1.  Получение  данных  задания  из  запроса
 		var task models.Task
 		if err := c.ShouldBindJSON(&task); err != nil {
+			fmt.Println("Ошибка при разборе JSON:", err)
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Неверный  формат  JSON"})
 			return
 		}
@@ -599,34 +606,36 @@ func CreateAdminTask(db *sql.DB) gin.HandlerFunc {
 // UpdateAdminTask  -  обработчик  для  PUT  /admin/tasks/:id
 func UpdateAdminTask(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		//  1.  Получение  ID  задания  из  параметров  URL
+		// 1. Получение ID задания из параметров URL
 		taskID, err := strconv.ParseInt(c.Param("id"), 10, 64)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Неверный  ID  задания"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Неверный ID задания"})
 			return
 		}
 
-		//  2.  Получение  данных  задания  из  запроса
+		// 2. Получение данных задания из запроса
 		var task models.Task
 		if err := c.ShouldBindJSON(&task); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Неверный  формат  JSON"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Неверный формат JSON"})
 			return
 		}
 
-		//  3.  Обновление  данных  задания  в  базе  данных
+		// 3. Обновление данных задания в базе данных
 		sqlStatement := `
 		UPDATE tasks 
-		SET lesson_id = $1, task_type = $2, content = $3 
+		SET lesson_id = COALESCE($1, lesson_id), 
+		    task_type = COALESCE($2, task_type), 
+		    content = COALESCE($3, content) 
 		WHERE id = $4`
 		_, err = db.Exec(sqlStatement, task.LessonID, task.TaskType, task.Content, taskID)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка  сервера"})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка сервера"})
 			return
 		}
 
-		//  4.  Отправка  ответа
+		// 4. Отправка ответа
 		c.JSON(http.StatusOK, gin.H{
-			"message": "Задание  успешно  обновлен",
+			"message": "Задание успешно обновлено",
 		})
 	}
 }
@@ -723,34 +732,36 @@ func CreateAdminTaskOption(db *sql.DB) gin.HandlerFunc {
 // UpdateAdminTaskOption  -  обработчик  для  PUT  /admin/task_options/:id
 func UpdateAdminTaskOption(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		//  1.  Получение  ID  варианта  ответа  из  параметров  URL
+		// 1. Получение ID варианта ответа из параметров URL
 		taskOptionID, err := strconv.ParseInt(c.Param("id"), 10, 64)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Неверный  ID  варианта  ответа"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Неверный ID варианта ответа"})
 			return
 		}
 
-		//  2.  Получение  данных  варианта  ответа  из  запроса
+		// 2. Получение данных варианта ответа из запроса
 		var taskOption models.TaskOption
 		if err := c.ShouldBindJSON(&taskOption); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Неверный  формат  JSON"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Неверный формат JSON"})
 			return
 		}
 
-		//  3.  Обновление  данных  варианта  ответа  в  базе  данных
+		// 3. Обновление данных варианта ответа в базе данных
 		sqlStatement := `
 		UPDATE task_options 
-		SET task_id = $1, text = $2, is_correct = $3 
+		SET task_id = COALESCE($1, task_id), 
+		    text = COALESCE($2, text), 
+		    is_correct = COALESCE($3, is_correct) 
 		WHERE id = $4`
 		_, err = db.Exec(sqlStatement, taskOption.TaskID, taskOption.Text, taskOption.IsCorrect, taskOptionID)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка  сервера"})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка сервера"})
 			return
 		}
 
-		//  4.  Отправка  ответа
+		// 4. Отправка ответа
 		c.JSON(http.StatusOK, gin.H{
-			"message": "Вариант  ответа  успешно  обновлен",
+			"message": "Вариант ответа успешно обновлен",
 		})
 	}
 }

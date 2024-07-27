@@ -47,11 +47,6 @@ function AdminHome() {
           }),
         ]);
 
-        console.log(userResponse)
-        console.log(courseResponse)
-        console.log(lessonResponse)
-        console.log(taskResponse)
-
         setUserCount(userResponse.data.userCount);
         setCourseCount(courseResponse.data.coursesCount);
         setLessonCount(lessonResponse.data.lessonsCount);
@@ -69,9 +64,10 @@ function AdminHome() {
     <div className="bg-gray-100 min-h-screen flex flex-col">
       <header className="sticky top-0 z-10 bg-[#102e44] shadow-md">
         <div className="container mx-auto py-4 flex justify-between items-center">
-          <div className="flex items-center">
+          <Link to="/" className="flex items-center">
+            <img src="/logo-new.png" alt="Lingual Legacy" className="w-10 h-auto mr-2" />
             <h1 className="text-white text-xl font-bold">Административная панель</h1>
-          </div>
+          </Link> 
           <nav className="flex justify-between space-x-4">
             <div className="flex space-x-4">
               <Link to="/admin/users" className="flex items-center py-2 px-4 text-white hover:bg-gray-200 hover:text-gray-800 transition duration-300 ease-in-out">Пользователи</Link>

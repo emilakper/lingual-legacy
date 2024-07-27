@@ -17,15 +17,22 @@ function UserModal({ isOpen, onClose, user, onSave, onDelete }) {
 
   useEffect(() => {
     if (user){
-        setEmail(user.email)
-        setIsAdmin(user.is_admin)
+        setEmail(user.email);
+        setIsAdmin(user.is_admin);
     } else {
-        setEmail('')
-        setPassword('')
-        setIsAdmin(false)
+        setEmail('');
+        setPassword('');
+        setIsAdmin(false);
     }
-  }, [user])
+  }, [user]);
 
+  useEffect(() => {
+    if (!isOpen) {
+      setEmail('');
+      setPassword('');
+      setIsAdmin(false);
+    }
+  }, [isOpen]);
 
   return (
     <div className={`fixed inset-0 z-50 flex items-center justify-center ${isOpen ? 'block' : 'hidden'} bg-gray-500 bg-opacity-50`}> 
@@ -61,7 +68,7 @@ function UserModal({ isOpen, onClose, user, onSave, onDelete }) {
               id="isAdmin"
               checked={isAdmin}
               onChange={(e) => setIsAdmin(e.target.checked)}
-              class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+              className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
             />
           </div>
           <div className="flex justify-end">

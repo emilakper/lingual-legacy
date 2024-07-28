@@ -121,12 +121,12 @@ function AdminTasks() {
 
   const handleSaveTask = async (updatedTask) => {
     const adminToken = localStorage.getItem('adminToken');
-
+  
     if (!adminToken) {
       navigate('/login');
       return;
     }
-
+  
     try {
       let response;
       if (selectedTask) {
@@ -141,11 +141,28 @@ function AdminTasks() {
             Authorization: `Bearer ${adminToken}`,
           },
         });
-
-        // Обновление вариантов ответов
-        for (const option of updatedTask.task_options) {
+  
+        // Обновление или удаление вариантов ответов
+        const originalOptions = selectedTask.task_options || [];
+        const updatedOptions = updatedTask.task_options || [];
+  
+        // Удаление вариантов ответов, которые были удалены на клиенте
+        for (const originalOption of originalOptions) {
+          const optionExists = updatedOptions.some(option => option.id === originalOption.id);
+          if (!optionExists) {
+            await axios.delete(`http://localhost:8081/admin/task_options/${originalOption.id}`, {
+              headers: {
+                Authorization: `Bearer ${adminToken}`,
+              },
+            });
+          }
+        }
+  
+        // Обновление или добавление вариантов ответов
+        for (const option of updatedOptions) {
           if (option.id) {
             await axios.put(`http://localhost:8081/admin/task_options/${option.id}`, {
+              task_id: selectedTask.id,
               text: option.text,
               is_correct: option.is_correct,
             }, {
@@ -177,7 +194,7 @@ function AdminTasks() {
             Authorization: `Bearer ${adminToken}`,
           },
         });
-
+  
         // Создание вариантов ответов
         for (const option of updatedTask.task_options) {
           await axios.post('http://localhost:8081/admin/task_options', {

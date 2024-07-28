@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { Line } from 'react-chartjs-2';
+import { Chart, registerables } from 'chart.js';
+
+Chart.register(...registerables);
 
 function AdminHome() {
   const navigate = useNavigate();
@@ -8,6 +12,7 @@ function AdminHome() {
   const [courseCount, setCourseCount] = useState(0);
   const [lessonCount, setLessonCount] = useState(0);
   const [taskCount, setTaskCount] = useState(0);
+  const [userChartData, setUserChartData] = useState({});
 
   const handleLogout = () => {
     localStorage.removeItem('adminToken');
@@ -57,7 +62,23 @@ function AdminHome() {
       }
     };
 
+    // Получаем данные для графика пользователей
+    const fetchUserChartData = async () => {
+      try {
+        const response = await axios.get('http://localhost:8081/admin/users/chart', {
+          headers: {
+            Authorization: `Bearer ${adminToken}`, 
+          },
+        });
+        setUserChartData(response.data);
+      } catch (error) {
+        console.error("Ошибка получения данных для графика пользователей:", error);
+        // Добавить обработку ошибки, например, отображение сообщения пользователю
+      }
+    };
+
     fetchStats();
+    fetchUserChartData();
   }, [navigate]); 
 
   return (
@@ -101,6 +122,39 @@ function AdminHome() {
             <p className="text-gray-600 text-lg">{taskCount}</p>
           </div>
         </div>
+
+        <div className="mt-8 bg-white rounded-lg shadow-md p-4">
+          <h2 className="text-xl font-bold text-gray-800 mb-4">Динамика пользователей</h2>
+          {userChartData.labels ? (
+            <Line
+              data={{
+                labels: userChartData.labels,
+                datasets: [
+                  {
+                    label: 'Количество пользователей',
+                    data: userChartData.data,
+                    fill: false,
+                    backgroundColor: 'rgba(75,192,192,0.4)',
+                    borderColor: 'rgba(75,192,192,1)',
+                  },
+                ],
+              }}
+              options={{
+                scales: {
+                  x: {
+                    type: 'category',
+                  },
+                  y: {
+                    type: 'linear',
+                    beginAtZero: true,
+                  },
+                },
+              }}
+            />
+          ) : (
+            <p>Загрузка данных...</p>
+          )}
+        </div>
       </main>
 
       <footer className="bg-gray-200 py-4 mt-8">
@@ -113,4 +167,3 @@ function AdminHome() {
 }
 
 export default AdminHome;
-

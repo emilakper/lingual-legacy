@@ -39,7 +39,6 @@ function Lesson() {
         setLesson(response.data);
       } catch (error) {
         console.error('Ошибка при получении урока:', error);
-        // ... Обработка ошибки ...
       }
     };
 
@@ -61,11 +60,9 @@ function Lesson() {
             Authorization: `Bearer ${token}`,
           },
         });
-        console.log("RESPONSE.DATA", response.data);
         setTasks(response.data.tasks);
       } catch (error) {
         console.error('Ошибка при получении заданий:', error);
-        // ... Обработка ошибки ...
       }
     };
 
@@ -87,9 +84,14 @@ function Lesson() {
 
   const isOptionCorrect = (optionId) => {
     const currentTask = tasks.find(task => task.task_options.some(option => option.id === optionId));
-    if (!currentTask) return false;
+    if (!currentTask) {
+      return false;
+    }
     const currentOption = currentTask.task_options.find(option => option.id === optionId);
-    return currentOption !== undefined && currentOption.is_correct === true;
+    if (!currentOption) {
+      return false;
+    }
+    return currentOption.is_correct === true;
   };
 
   const restartTest = () => {
@@ -144,8 +146,10 @@ function Lesson() {
               {task.task_options.map((option) => (
                 <li
                   key={option.id}
-                  className={`block p-4 bg-white rounded-md shadow-md mb-4 hover:bg-gray-100 transition duration-150 ease-in-out
-                         ${showAnswer && selectedOptions[task.task.id] === option.id && (isOptionCorrect(option.id) ? 'bg-green-100' : 'bg-red-100')}`}
+                  className={`block p-4 rounded-md shadow-md mb-4 transition duration-150 ease-in-out
+                             ${showAnswer && selectedOptions[task.task.id] === option.id
+                      ? isOptionCorrect(option.id) ? 'bg-green-400' : 'bg-red-400'
+                      : 'bg-white hover:bg-gray-100'}`}
                 >
                   <button onClick={() => handleOptionClick(task.task.id, option.id)} className="w-full text-left focus:outline-none focus:shadow-outline">
                     {option.text}

@@ -785,7 +785,7 @@ func UpdateAdminTaskOption(db *sql.DB) gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Неверный формат JSON"})
 			return
 		}
-
+		//log.Printf("Received task option data: %+v and id %+v", taskOption, taskOptionID)
 		// 3. Обновление данных варианта ответа в базе данных
 		sqlStatement := `
 		UPDATE task_options 
@@ -795,6 +795,7 @@ func UpdateAdminTaskOption(db *sql.DB) gin.HandlerFunc {
 		WHERE id = $4`
 		_, err = db.Exec(sqlStatement, taskOption.TaskID, taskOption.Text, taskOption.IsCorrect, taskOptionID)
 		if err != nil {
+			//log.Printf("Error updating task option: %v", err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка сервера"})
 			return
 		}
@@ -827,6 +828,46 @@ func DeleteAdminTaskOption(db *sql.DB) gin.HandlerFunc {
 		//  3.  Отправка  ответа
 		c.JSON(http.StatusOK, gin.H{
 			"message": "Вариант  ответа  успешно  удален",
+		})
+	}
+}
+
+// GetAdminUsersChart - обработчик для GET /admin/users/chart
+func GetAdminUsersChart(db *sql.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Выполнение SQL-запроса
+		rows, err := db.Query(`
+			SELECT DATE(created_at) AS date, COUNT(*) AS count
+			FROM users
+			WHERE created_at >= NOW() - INTERVAL '7 days'
+			GROUP BY DATE(created_at)
+			ORDER BY DATE(created_at)
+		`)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка сервера"})
+			return
+		}
+		defer rows.Close()
+
+		// Обработка результатов запроса
+		var labels []string
+		var data []int
+		for rows.Next() {
+			var date string
+			var count int
+			err := rows.Scan(&date, &count)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка сервера"})
+				return
+			}
+			labels = append(labels, date)
+			data = append(data, count)
+		}
+
+		// Отправка ответа
+		c.JSON(http.StatusOK, gin.H{
+			"labels": labels,
+			"data":   data,
 		})
 	}
 }

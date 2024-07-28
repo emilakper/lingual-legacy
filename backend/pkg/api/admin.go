@@ -698,6 +698,46 @@ func GetAdminTaskOptions(db *sql.DB) gin.HandlerFunc {
 	}
 }
 
+// GetTaskOptionsByTaskID - обработчик для GET /admin/task_options/task/:task_id
+func GetTaskOptionsByTaskID(db *sql.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// 1. Получение task_id из параметров URL
+		taskID, err := strconv.ParseInt(c.Param("task_id"), 10, 64)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Неверный task_id"})
+			return
+		}
+
+		// 2. Выполнение SQL-запроса
+		rows, err := db.Query("SELECT id, task_id, text, is_correct, created_at FROM task_options WHERE task_id = $1", taskID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка сервера"})
+			return
+		}
+		defer rows.Close()
+
+		// 3. Обработка результатов запроса
+		var taskOptions []models.TaskOption
+		for rows.Next() {
+			var taskOption models.TaskOption
+			err := rows.Scan(&taskOption.ID, &taskOption.TaskID, &taskOption.Text, &taskOption.IsCorrect, &taskOption.CreatedAt)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка сервера"})
+				return
+			}
+			taskOptions = append(taskOptions, taskOption)
+		}
+
+		taskOptionsCount := len(taskOptions)
+
+		// 4. Отправка ответа
+		c.JSON(http.StatusOK, gin.H{
+			"task_options":      taskOptions,
+			"task_optionsCount": taskOptionsCount,
+		})
+	}
+}
+
 // CreateAdminTaskOption  -  обработчик  для  POST  /admin/task_options
 func CreateAdminTaskOption(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {

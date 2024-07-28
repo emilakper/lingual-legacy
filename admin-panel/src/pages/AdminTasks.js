@@ -9,11 +9,11 @@ function AdminTasks() {
   const [tasks, setTasks] = useState([]);
   const [lessons, setLessons] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedTask, setSelectedTask] = useState(null); 
+  const [selectedTask, setSelectedTask] = useState(null);
 
   const handleLogout = () => {
     localStorage.removeItem('adminToken');
-    navigate('/login'); 
+    navigate('/login');
   };
 
   const fetchTasks = useCallback(async () => {
@@ -58,6 +58,27 @@ function AdminTasks() {
     }
   }, [navigate]);
 
+  const fetchTaskOptions = async (taskId) => {
+    const adminToken = localStorage.getItem('adminToken');
+
+    if (!adminToken) {
+      navigate('/login');
+      return;
+    }
+
+    try {
+      const response = await axios.get(`http://localhost:8081/admin/task_options/task/${taskId}`, {
+        headers: {
+          Authorization: `Bearer ${adminToken}`,
+        },
+      });
+      return response.data.task_options;
+    } catch (error) {
+      console.error("Ошибка получения вариантов ответов:", error);
+      // Добавить обработку ошибки, например, отображение сообщения пользователю
+    }
+  };
+
   useEffect(() => {
     fetchTasks();
     fetchLessons();
@@ -78,7 +99,7 @@ function AdminTasks() {
         },
       });
       // Обновить список заданий после удаления
-      fetchTasks(); 
+      fetchTasks();
       toast.success('Задание успешно удалено');
     } catch (error) {
       console.error("Ошибка удаления задания:", error);
@@ -89,12 +110,13 @@ function AdminTasks() {
 
   const handleCreateTask = () => {
     setIsModalOpen(true);
-    setSelectedTask(null); 
+    setSelectedTask(null);
   };
 
-  const handleEditTask = (task) => {
+  const handleEditTask = async (task) => {
+    const options = await fetchTaskOptions(task.id);
+    setSelectedTask({ ...task, task_options: options });
     setIsModalOpen(true);
-    setSelectedTask(task);
   };
 
   const handleSaveTask = async (updatedTask) => {
@@ -109,24 +131,70 @@ function AdminTasks() {
       let response;
       if (selectedTask) {
         // Обновление существующего задания
-        response = await axios.put(`http://localhost:8081/admin/tasks/${selectedTask.id}`, updatedTask, {
+        response = await axios.put(`http://localhost:8081/admin/tasks/${selectedTask.id}`, {
+          title: updatedTask.title,
+          content: updatedTask.content,
+          lesson_id: parseInt(updatedTask.lesson_id, 10),
+          task_type: updatedTask.task_type,
+        }, {
           headers: {
             Authorization: `Bearer ${adminToken}`,
           },
         });
+
+        // Обновление вариантов ответов
+        for (const option of updatedTask.task_options) {
+          if (option.id) {
+            await axios.put(`http://localhost:8081/admin/task_options/${option.id}`, {
+              text: option.text,
+              is_correct: option.is_correct,
+            }, {
+              headers: {
+                Authorization: `Bearer ${adminToken}`,
+              },
+            });
+          } else {
+            await axios.post('http://localhost:8081/admin/task_options', {
+              task_id: selectedTask.id,
+              text: option.text,
+              is_correct: option.is_correct,
+            }, {
+              headers: {
+                Authorization: `Bearer ${adminToken}`,
+              },
+            });
+          }
+        }
       } else {
         // Создание нового задания
-        response = await axios.post('http://localhost:8081/admin/tasks', updatedTask, {
+        response = await axios.post('http://localhost:8081/admin/tasks', {
+          title: updatedTask.title,
+          content: updatedTask.content,
+          lesson_id: parseInt(updatedTask.lesson_id, 10),
+          task_type: updatedTask.task_type,
+        }, {
           headers: {
             Authorization: `Bearer ${adminToken}`,
           },
         });
+
+        // Создание вариантов ответов
+        for (const option of updatedTask.task_options) {
+          await axios.post('http://localhost:8081/admin/task_options', {
+            task_id: response.data.task_id,
+            text: option.text,
+            is_correct: option.is_correct,
+          }, {
+            headers: {
+              Authorization: `Bearer ${adminToken}`,
+            },
+          });
+        }
       }
       // Обновление списка заданий
       fetchTasks();
-      setIsModalOpen(false); 
+      setIsModalOpen(false);
       toast.success('Изменения применены успешно');
-      return response.data; // Возвращаем сохраненный объект задания
     } catch (error) {
       console.error("Ошибка сохранения задания:", error);
       toast.error('Изменения не применены');
@@ -168,8 +236,9 @@ function AdminTasks() {
             <thead>
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Тип</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Тип задания</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Содержание</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Урок</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Дата создания</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Действия</th>
               </tr>
@@ -180,6 +249,7 @@ function AdminTasks() {
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{task.id}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{task.task_type}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{task.content}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{task.lesson_id}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                     {new Date(task.created_at).toLocaleString('en-US', {
                         year: 'numeric',

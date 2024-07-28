@@ -12,10 +12,14 @@ function Lesson() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const handleLogout = () => {
-      localStorage.removeItem('token');
-      setIsLoggedIn(false); 
-      };
+    localStorage.removeItem('token');
+    setIsLoggedIn(false);
+  };
 
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    setIsLoggedIn(!!token);
+  }, []);
 
   useEffect(() => {
     const fetchLesson = async () => {
@@ -57,7 +61,7 @@ function Lesson() {
             Authorization: `Bearer ${token}`,
           },
         });
-        console.log("RESPONSE.DATA",response.data)
+        console.log("RESPONSE.DATA", response.data);
         setTasks(response.data.tasks);
       } catch (error) {
         console.error('Ошибка при получении заданий:', error);
@@ -76,40 +80,42 @@ function Lesson() {
     if (selectedOptions[taskId] !== undefined) {
       return;
     }
-  
-    setSelectedOptions({ ...selectedOptions, [taskId]: optionId }); 
+
+    setSelectedOptions({ ...selectedOptions, [taskId]: optionId });
     setShowAnswer(true);
   };
 
   const isOptionCorrect = (optionId) => {
-    const currentTask = tasks[0].task_options.find(option => option.id === optionId);
-    return currentTask !== undefined && currentTask.is_correct === true;
+    const currentTask = tasks.find(task => task.task_options.some(option => option.id === optionId));
+    if (!currentTask) return false;
+    const currentOption = currentTask.task_options.find(option => option.id === optionId);
+    return currentOption !== undefined && currentOption.is_correct === true;
   };
 
   const restartTest = () => {
     setSelectedOptions({});
-    setShowAnswer(false); 
+    setShowAnswer(false);
   };
 
   return (
     <div className="bg-gray-100 min-h-screen flex flex-col">
       <header className="sticky top-0 z-10 bg-[#102e44] shadow-md">
-        <div className="container mx-auto py-4 flex justify-between items-center"> 
-          <div className="flex items-center"> 
+        <div className="container mx-auto py-4 flex justify-between items-center">
+          <div className="flex items-center">
             <Link to="/" className="flex items-center">
               <img src="/logo-new.png" alt="Lingual Legacy" className="w-10 h-auto" />
               <h1 className="text-white text-xl font-bold ml-4">Lingual Legacy</h1>
-            </Link> 
+            </Link>
           </div>
-          <nav className="flex justify-between space-x-4"> 
+          <nav className="flex justify-between space-x-4">
             <div className="flex space-x-4">
-              <Link to="/courses" className="flex items-center py-2 px-4 text-white hover:bg-gray-200 hover:text-gray-800 transition duration-300 ease-in-out">Курсы</Link> 
-              <Link to="/about" className="flex items-center py-2 px-4 text-white hover:bg-gray-200 hover:text-gray-800 transition duration-300 ease-in-out">О нас</Link>  
-              <Link to="/contacts" className="flex items-center py-2 px-4 text-white hover:bg-gray-200 hover:text-gray-800 transition duration-300 ease-in-out">Контакты</Link>  
+              <Link to="/courses" className="flex items-center py-2 px-4 text-white hover:bg-gray-200 hover:text-gray-800 transition duration-300 ease-in-out">Курсы</Link>
+              <Link to="/about" className="flex items-center py-2 px-4 text-white hover:bg-gray-200 hover:text-gray-800 transition duration-300 ease-in-out">О нас</Link>
+              <Link to="/contacts" className="flex items-center py-2 px-4 text-white hover:bg-gray-200 hover:text-gray-800 transition duration-300 ease-in-out">Контакты</Link>
             </div>
             <div className="flex space-x-4">
               {isLoggedIn ? (
-                <button onClick={handleLogout} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">Выйти</button> 
+                <button onClick={handleLogout} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">Выйти</button>
               ) : (
                 <>
                   <Link to="/login" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Войти</Link>
@@ -121,7 +127,7 @@ function Lesson() {
         </div>
       </header>
 
-      <main className="container mx-auto py-12 flex-grow"> 
+      <main className="container mx-auto py-12 flex-grow">
         <div className="mb-8">
           <h2 className="text-3xl font-bold text-gray-800">{lesson.title}</h2>
         </div>
@@ -136,22 +142,22 @@ function Lesson() {
             <h4 className="text-lg font-bold text-gray-800">{task.task.content}</h4>
             <ul>
               {task.task_options.map((option) => (
-                <li 
-                  key={option.id} 
-                  className={`block p-4 bg-white rounded-md shadow-md mb-4 hover:bg-gray-100 transition duration-150 ease-in-out 
-                         ${showAnswer && selectedOptions[task.task.id] === option.id && (isOptionCorrect(option.id) ? 'bg-green-100' : 'bg-red-100')}`} 
-                > 
+                <li
+                  key={option.id}
+                  className={`block p-4 bg-white rounded-md shadow-md mb-4 hover:bg-gray-100 transition duration-150 ease-in-out
+                         ${showAnswer && selectedOptions[task.task.id] === option.id && (isOptionCorrect(option.id) ? 'bg-green-100' : 'bg-red-100')}`}
+                >
                   <button onClick={() => handleOptionClick(task.task.id, option.id)} className="w-full text-left focus:outline-none focus:shadow-outline">
-                    {option.text} 
+                    {option.text}
                   </button>
                 </li>
               ))}
             </ul>
           </div>
         ))}
-        <div className="flex justify-center mt-4"> 
-            <button onClick={() => navigate(`/courses/${lesson.course_id}`)} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-4">Завершить урок</button>
-            <button onClick={restartTest} className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">Попробовать заново</button>
+        <div className="flex justify-center mt-4">
+          <button onClick={() => navigate(`/courses/${lesson.course_id}`)} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-4">Завершить урок</button>
+          <button onClick={restartTest} className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">Попробовать заново</button>
         </div>
       </main>
 

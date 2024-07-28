@@ -131,6 +131,7 @@ func main() {
 		admin.POST("/task_options", api.JWTAuthMiddleware(), api.CreateAdminTaskOption(db))
 		admin.PUT("/task_options/:id", api.JWTAuthMiddleware(), api.UpdateAdminTaskOption(db))
 		admin.DELETE("/task_options/:id", api.JWTAuthMiddleware(), api.DeleteAdminTaskOption(db))
+		admin.GET("/task_options/task/:task_id", api.JWTAuthMiddleware(), api.GetTaskOptionsByTaskID(db))
 	}
 
 	router.Run(":8081")

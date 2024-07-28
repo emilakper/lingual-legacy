@@ -1,108 +1,70 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { toast } from 'react-toastify';
 
 function TaskModal({ isOpen, onClose, task, onSave, onDelete, lessons }) {
-  const [taskType, setTaskType] = useState(task ? task.task_type : '');
+  const [title, setTitle] = useState(task ? task.title : '');
   const [content, setContent] = useState(task ? task.content : '');
   const [lessonId, setLessonId] = useState(task ? task.lesson_id : '');
-  const [options, setOptions] = useState([]);
+  const [taskType, setTaskType] = useState(task ? task.task_type : '');
+  const [taskOptions, setTaskOptions] = useState(task ? task.task_options || [] : []);
   const [newOptionText, setNewOptionText] = useState('');
   const [newOptionIsCorrect, setNewOptionIsCorrect] = useState(false);
 
-  useEffect(() => {
-    if (task) {
-      setTaskType(task.task_type);
-      setContent(task.content);
-      setLessonId(task.lesson_id);
-      fetchTaskOptions(task.id);
-    } else {
-      setTaskType('');
-      setContent('');
-      setLessonId('');
-      setOptions([]);
-    }
-  }, [task]);
-
-  const fetchTaskOptions = async (taskId) => {
-    try {
-      const adminToken = localStorage.getItem('adminToken');
-      const response = await axios.get(`http://localhost:8081/admin/task_options?task_id=${taskId}`, {
-        headers: {
-          Authorization: `Bearer ${adminToken}`,
-        },
-      });
-      setOptions(response.data.task_options);
-    } catch (error) {
-      console.error("Ошибка получения вариантов ответов:", error);
-    }
-  };
-
-  const handleSave = async () => {
-    const updatedTask = { 
-      task_type: taskType, 
-      content, 
-      lesson_id: parseInt(lessonId, 10)
-    };
-    const savedTask = await onSave(updatedTask);
-    if (savedTask && savedTask.id) {
-      await saveOptions(savedTask.id);
-    }
-    onClose(); 
-  };
-
-  const saveOptions = async (taskId) => {
-    const adminToken = localStorage.getItem('adminToken');
-    for (const option of options) {
-      try {
-        await axios.post('http://localhost:8081/admin/task_options', { 
-          task_id: parseInt(taskId, 10), 
-          text: option.text,
-          is_correct: option.is_correct
-        }, {
-          headers: {
-            Authorization: `Bearer ${adminToken}`,
-          },
-        });
-      } catch (error) {
-        console.error("Ошибка создания варианта ответа:", error);
-        toast.error('Ошибка при создании варианта ответа');
-      }
-    }
+  const handleSave = () => {
+    onSave({ title, content, lesson_id: lessonId, task_type: taskType, task_options: taskOptions });
+    onClose();
   };
 
   const handleDelete = () => {
-    onDelete(task.id); 
-    onClose(); 
+    onDelete(task.id);
+    onClose();
   };
 
   const handleAddOption = () => {
-    if (newOptionText.trim()) {
-      setOptions([...options, { text: newOptionText, is_correct: newOptionIsCorrect }]);
-      setNewOptionText('');
-      setNewOptionIsCorrect(false);
-    }
+    setTaskOptions([...taskOptions, { text: newOptionText, is_correct: newOptionIsCorrect }]);
+    setNewOptionText('');
+    setNewOptionIsCorrect(false);
   };
 
   const handleRemoveOption = (index) => {
-    const newOptions = [...options];
+    const newOptions = [...taskOptions];
     newOptions.splice(index, 1);
-    setOptions(newOptions);
+    setTaskOptions(newOptions);
+  };
+
+  const handleOptionChange = (index, field, value) => {
+    const newOptions = [...taskOptions];
+    newOptions[index][field] = value;
+    setTaskOptions(newOptions);
   };
 
   useEffect(() => {
-    if (!isOpen) {
-      setTaskType('');
+    if (task) {
+      setTitle(task.title);
+      setContent(task.content);
+      setLessonId(task.lesson_id);
+      setTaskType(task.task_type);
+      setTaskOptions(task.task_options || []);
+    } else {
+      setTitle('');
       setContent('');
       setLessonId('');
-      setOptions([]);
-      setNewOptionText('');
-      setNewOptionIsCorrect(false);
+      setTaskType('');
+      setTaskOptions([]);
+    }
+  }, [task]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setTitle('');
+      setContent('');
+      setLessonId('');
+      setTaskType('');
+      setTaskOptions([]);
     }
   }, [isOpen]);
 
   return (
-    <div className={`fixed inset-0 z-50 flex items-center justify-center ${isOpen ? 'block' : 'hidden'} bg-gray-500 bg-opacity-50`}> 
+    <div className={`fixed inset-0 z-50 flex items-center justify-center ${isOpen ? 'block' : 'hidden'} bg-gray-500 bg-opacity-50`}>
       <div className="bg-white rounded-lg shadow-md w-full max-w-md p-6">
         <h2 className="text-xl font-bold mb-4">
           {task ? 'Редактировать задание' : 'Создать задание'}
@@ -143,29 +105,23 @@ function TaskModal({ isOpen, onClose, task, onSave, onDelete, lessons }) {
           </div>
           <div>
             <label className="block text-gray-700 font-bold mb-2">Варианты ответов</label>
-            {options.map((option, index) => (
+            {taskOptions.map((option, index) => (
               <div key={index} className="flex items-center space-x-2 mb-2">
                 <input
                   type="text"
                   value={option.text}
-                  onChange={(e) => {
-                    const newOptions = [...options];
-                    newOptions[index].text = e.target.value;
-                    setOptions(newOptions);
-                  }}
+                  onChange={(e) => handleOptionChange(index, 'text', e.target.value)}
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 />
                 <input
                   type="checkbox"
                   checked={option.is_correct}
-                  onChange={(e) => {
-                    const newOptions = [...options];
-                    newOptions[index].is_correct = e.target.checked;
-                    setOptions(newOptions);
-                  }}
-                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                  onChange={(e) => handleOptionChange(index, 'is_correct', e.target.checked)}
+                  className="form-checkbox h-5 w-5 text-blue-600"
                 />
-                <button type="button" onClick={() => handleRemoveOption(index)} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">Удалить</button>
+                <button type="button" onClick={() => handleRemoveOption(index)} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+                  Удалить
+                </button>
               </div>
             ))}
             <div className="flex items-center space-x-2">
@@ -179,9 +135,11 @@ function TaskModal({ isOpen, onClose, task, onSave, onDelete, lessons }) {
                 type="checkbox"
                 checked={newOptionIsCorrect}
                 onChange={(e) => setNewOptionIsCorrect(e.target.checked)}
-                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                className="form-checkbox h-5 w-5 text-blue-600"
               />
-              <button type="button" onClick={handleAddOption} className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">Добавить</button>
+              <button type="button" onClick={handleAddOption} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                Добавить
+              </button>
             </div>
           </div>
           <div className="flex justify-end">

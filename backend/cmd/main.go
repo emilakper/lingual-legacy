@@ -24,9 +24,11 @@ func main() {
 
 	// Получение пароля из переменных окружения
 	dbPassword := os.Getenv("DB_PASSWORD")
+	dbUser := os.Getenv("DB_USER")
+	dbName := os.Getenv("DB_NAME")
 
 	// Строка подключения к PostgreSQL
-	connStr := fmt.Sprintf("postgres://lingua_legacy_user:%s@localhost/lingua_legacy?sslmode=disable", dbPassword)
+	connStr := fmt.Sprintf("postgres://%s:%s@localhost/%s?sslmode=disable", dbUser, dbPassword, dbName)
 
 	// Подключение к базе данных
 	db, err := sql.Open("postgres", connStr)

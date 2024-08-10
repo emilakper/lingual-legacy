@@ -106,10 +106,9 @@ function AdminLessons() {
     }
 
     try {
-      let response;
       if (selectedLesson) {
         // Обновление существующего урока
-        response = await axios.put(`http://localhost:8081/admin/lessons/${selectedLesson.id}`, {
+        await axios.put(`http://localhost:8081/admin/lessons/${selectedLesson.id}`, {
           title: updatedLesson.title,
           content: updatedLesson.content,
           course_id: parseInt(updatedLesson.course_id, 10)
@@ -120,7 +119,7 @@ function AdminLessons() {
         });
       } else {
         // Создание нового урока
-        response = await axios.post('http://localhost:8081/admin/lessons', {
+        await axios.post('http://localhost:8081/admin/lessons', {
           title: updatedLesson.title,
           content: updatedLesson.content,
           course_id: parseInt(updatedLesson.course_id, 10)

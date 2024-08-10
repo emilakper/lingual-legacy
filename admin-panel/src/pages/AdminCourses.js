@@ -83,17 +83,16 @@ function AdminCourses() {
     }
 
     try {
-      let response;
       if (selectedCourse) {
         // Обновление существующего курса
-        response = await axios.put(`http://localhost:8081/admin/courses/${selectedCourse.id}`, updatedCourse, {
+        await axios.put(`http://localhost:8081/admin/courses/${selectedCourse.id}`, updatedCourse, {
           headers: {
             Authorization: `Bearer ${adminToken}`,
           },
         });
       } else {
         // Создание нового курса
-        response = await axios.post('http://localhost:8081/admin/courses', updatedCourse, {
+        await axios.post('http://localhost:8081/admin/courses', updatedCourse, {
           headers: {
             Authorization: `Bearer ${adminToken}`,
           },

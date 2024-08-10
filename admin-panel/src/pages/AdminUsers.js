@@ -90,17 +90,16 @@ function AdminUsers() {
     delete userToSave.isAdmin;
 
     try {
-      let response;
       if (selectedUser) {
         //  Обновление  существующего  пользователя
-        response = await axios.put(`http://localhost:8081/admin/users/${selectedUser.id}`, userToSave, {
+        await axios.put(`http://localhost:8081/admin/users/${selectedUser.id}`, userToSave, {
           headers: {
             Authorization: `Bearer ${adminToken}`,
           },
         });
       } else {
         //  Создание  нового  пользователя
-        response = await axios.post('http://localhost:8081/admin/users', userToSave, {
+        await axios.post('http://localhost:8081/admin/users', userToSave, {
           headers: {
             Authorization: `Bearer ${adminToken}`,
           },

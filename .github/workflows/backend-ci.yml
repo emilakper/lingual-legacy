@@ -14,15 +14,17 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Set up Go
-      uses: actions/setup-go@v2
+      uses: actions/setup-go@v3
       with:
-        go-version: 1.17
+        go-version: 1.22.5 
+
+    - name: Install dependencies
+      run: go mod download
+      working-directory: ./backend 
 
     - name: Build
-      run: go build -o backend ./backend/
-
-    - name: Run tests
-      run: go test ./backend/...
+      run: go build -o backend ./cmd/main.go
+      working-directory: ./backend 

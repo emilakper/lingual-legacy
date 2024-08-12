@@ -8,6 +8,7 @@ import Course from './pages/Course';
 import About from './pages/About';
 import Contacts from './pages/Contacts';
 import Lesson from './pages/Lesson';
+import Profile from './pages/Profile';
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
           <Route path="/about" element={<About />} />
           <Route path="/contacts" element={<Contacts />} />
           <Route path="/lessons/:id" element={<Lesson />} />
+          <Route path="/profile" element={<Profile />} />
         </Routes>
       </div>
     </Router>

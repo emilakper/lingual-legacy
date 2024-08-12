@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
+import Header from '../components/Header';
 
 function Lesson() {
   const { id } = useParams();
@@ -101,33 +102,7 @@ function Lesson() {
 
   return (
     <div className="bg-gray-100 min-h-screen flex flex-col">
-      <header className="sticky top-0 z-10 bg-[#102e44] shadow-md">
-        <div className="container mx-auto py-4 flex justify-between items-center">
-          <div className="flex items-center">
-            <Link to="/" className="flex items-center">
-              <img src="/logo-new.png" alt="Lingual Legacy" className="w-10 h-auto" />
-              <h1 className="text-white text-xl font-bold ml-4">Lingual Legacy</h1>
-            </Link>
-          </div>
-          <nav className="flex justify-between space-x-4">
-            <div className="flex space-x-4">
-              <Link to="/courses" className="flex items-center py-2 px-4 text-white hover:bg-gray-200 hover:text-gray-800 transition duration-300 ease-in-out">Курсы</Link>
-              <Link to="/about" className="flex items-center py-2 px-4 text-white hover:bg-gray-200 hover:text-gray-800 transition duration-300 ease-in-out">О нас</Link>
-              <Link to="/contacts" className="flex items-center py-2 px-4 text-white hover:bg-gray-200 hover:text-gray-800 transition duration-300 ease-in-out">Контакты</Link>
-            </div>
-            <div className="flex space-x-4">
-              {isLoggedIn ? (
-                <button onClick={handleLogout} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">Выйти</button>
-              ) : (
-                <>
-                  <Link to="/login" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Войти</Link>
-                  <Link to="/register" className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">Регистрация</Link>
-                </>
-              )}
-            </div>
-          </nav>
-        </div>
-      </header>
+      <Header />
 
       <main className="container mx-auto py-12 flex-grow">
         <div className="mb-8">

@@ -9,18 +9,6 @@ function Course() {
   const [course, setCourse] = useState(null);
   const [lessons, setLessons] = useState([]);
   const navigate = useNavigate();
-
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  const handleLogout = () => {
-      localStorage.removeItem('token');
-      setIsLoggedIn(false); 
-      };
-
-      useEffect(() => {
-      const token = localStorage.getItem('token');
-      setIsLoggedIn(!!token); 
-      }, []); 
   
       useEffect(() => {
         const fetchCourse = async () => {

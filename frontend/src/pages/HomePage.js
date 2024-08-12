@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import axios from 'axios';
 import CourseCard from '../components/CourseCard';
 import FaqItem from '../components/FaqItem';
@@ -7,13 +6,8 @@ import shuffle from 'lodash/shuffle';
 import Header from '../components/Header';
 
 function HomePage() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [courses, setCourses] = useState([]);
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    setIsLoggedIn(false); 
-  };
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -26,11 +20,6 @@ function HomePage() {
     };
 
     fetchCourses();
-  }, []); 
-
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    setIsLoggedIn(!!token); 
   }, []); 
 
   return (

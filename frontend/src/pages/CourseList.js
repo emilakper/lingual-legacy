@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import CourseCard from '../components/CourseCard';
 import axios from 'axios';
 import Header from '../components/Header';
@@ -7,7 +6,6 @@ import Header from '../components/Header';
 function CourseList() {
   const [courses, setCourses] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -21,16 +19,6 @@ function CourseList() {
 
     fetchCourses();
   }, []);
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    setIsLoggedIn(false); 
-  };
-
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    setIsLoggedIn(!!token); 
-  }, []); 
 
   const filteredCourses = courses.filter(course => 
     course.title.toLowerCase().includes(searchTerm.toLowerCase())

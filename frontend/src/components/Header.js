@@ -7,11 +7,6 @@ function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userEmail, setUserEmail] = useState('');
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    setIsLoggedIn(false);
-  };
-
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {

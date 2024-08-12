@@ -1,21 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React from 'react';
 import Header from '../components/Header';
 
 function Contacts() {
-
-const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-const handleLogout = () => {
-    localStorage.removeItem('token');
-    setIsLoggedIn(false); 
-    };
-
-    useEffect(() => {
-    const token = localStorage.getItem('token');
-    setIsLoggedIn(!!token); 
-    }, []); 
-
   return (
     <div className="bg-gray-100 min-h-screen flex flex-col"> 
       <Header />

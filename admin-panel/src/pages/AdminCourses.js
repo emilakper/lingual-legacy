@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import CourseModal from '../components/CourseModal';
 import { toast } from 'react-toastify';
+import apiUrl from '../config';
 
 function AdminCourses() {
   const navigate = useNavigate();
@@ -24,7 +25,7 @@ function AdminCourses() {
     }
 
     try {
-      const response = await axios.get('http://localhost:8081/admin/courses', {
+      const response = await axios.get(`${apiUrl}/admin/courses`, {
         headers: {
           Authorization: `Bearer ${adminToken}`,
         },
@@ -49,7 +50,7 @@ function AdminCourses() {
     }
 
     try {
-      await axios.delete(`http://localhost:8081/admin/courses/${courseId}`, {
+      await axios.delete(`${apiUrl}/admin/courses/${courseId}`, {
         headers: {
           Authorization: `Bearer ${adminToken}`,
         },
@@ -85,14 +86,14 @@ function AdminCourses() {
     try {
       if (selectedCourse) {
         // Обновление существующего курса
-        await axios.put(`http://localhost:8081/admin/courses/${selectedCourse.id}`, updatedCourse, {
+        await axios.put(`${apiUrl}/admin/courses/${selectedCourse.id}`, updatedCourse, {
           headers: {
             Authorization: `Bearer ${adminToken}`,
           },
         });
       } else {
         // Создание нового курса
-        await axios.post('http://localhost:8081/admin/courses', updatedCourse, {
+        await axios.post(`${apiUrl}/admin/courses`, updatedCourse, {
           headers: {
             Authorization: `Bearer ${adminToken}`,
           },

@@ -4,6 +4,7 @@ import CourseCard from '../components/CourseCard';
 import FaqItem from '../components/FaqItem';
 import shuffle from 'lodash/shuffle';
 import Header from '../components/Header';
+import apiUrl from '../config';
 
 function HomePage() {
   const [courses, setCourses] = useState([]);
@@ -12,7 +13,7 @@ function HomePage() {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const response = await axios.get('http://localhost:8081/api/v1/courses');
+        const response = await axios.get(`${apiUrl}/api/v1/courses`);
         setCourses(shuffle(response.data.courses).slice(0, 3));
       } catch (error) {
         console.error("Ошибка при получении курсов:", error);

@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import LessonModal from '../components/LessonModal';
 import { toast } from 'react-toastify';
+import apiUrl from '../config';
 
 function AdminLessons() {
   const navigate = useNavigate();
@@ -25,7 +26,7 @@ function AdminLessons() {
     }
 
     try {
-      const response = await axios.get('http://localhost:8081/admin/lessons', {
+      const response = await axios.get(`${apiUrl}/admin/lessons`, {
         headers: {
           Authorization: `Bearer ${adminToken}`,
         },
@@ -46,7 +47,7 @@ function AdminLessons() {
     }
 
     try {
-      const response = await axios.get('http://localhost:8081/admin/courses', {
+      const response = await axios.get(`${apiUrl}/admin/courses`, {
         headers: {
           Authorization: `Bearer ${adminToken}`,
         },
@@ -72,7 +73,7 @@ function AdminLessons() {
     }
 
     try {
-      await axios.delete(`http://localhost:8081/admin/lessons/${lessonId}`, {
+      await axios.delete(`${apiUrl}/admin/lessons/${lessonId}`, {
         headers: {
           Authorization: `Bearer ${adminToken}`,
         },
@@ -108,7 +109,7 @@ function AdminLessons() {
     try {
       if (selectedLesson) {
         // Обновление существующего урока
-        await axios.put(`http://localhost:8081/admin/lessons/${selectedLesson.id}`, {
+        await axios.put(`${apiUrl}/admin/lessons/${selectedLesson.id}`, {
           title: updatedLesson.title,
           content: updatedLesson.content,
           course_id: parseInt(updatedLesson.course_id, 10)
@@ -119,7 +120,7 @@ function AdminLessons() {
         });
       } else {
         // Создание нового урока
-        await axios.post('http://localhost:8081/admin/lessons', {
+        await axios.post(`${apiUrl}/admin/lessons`, {
           title: updatedLesson.title,
           content: updatedLesson.content,
           course_id: parseInt(updatedLesson.course_id, 10)

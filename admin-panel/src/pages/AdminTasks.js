@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import TaskModal from '../components/TaskModal';
 import { toast } from 'react-toastify';
+import apiUrl from '../config';
 
 function AdminTasks() {
   const navigate = useNavigate();
@@ -25,7 +26,7 @@ function AdminTasks() {
     }
 
     try {
-      const response = await axios.get('http://localhost:8081/admin/tasks', {
+      const response = await axios.get(`${apiUrl}/admin/tasks`, {
         headers: {
           Authorization: `Bearer ${adminToken}`,
         },
@@ -46,7 +47,7 @@ function AdminTasks() {
     }
 
     try {
-      const response = await axios.get('http://localhost:8081/admin/lessons', {
+      const response = await axios.get(`${apiUrl}/admin/lessons`, {
         headers: {
           Authorization: `Bearer ${adminToken}`,
         },
@@ -67,7 +68,7 @@ function AdminTasks() {
     }
 
     try {
-      const response = await axios.get(`http://localhost:8081/admin/task_options/task/${taskId}`, {
+      const response = await axios.get(`${apiUrl}/admin/task_options/task/${taskId}`, {
         headers: {
           Authorization: `Bearer ${adminToken}`,
         },
@@ -93,7 +94,7 @@ function AdminTasks() {
     }
 
     try {
-      await axios.delete(`http://localhost:8081/admin/tasks/${taskId}`, {
+      await axios.delete(`${apiUrl}/admin/tasks/${taskId}`, {
         headers: {
           Authorization: `Bearer ${adminToken}`,
         },
@@ -131,7 +132,7 @@ function AdminTasks() {
       let response;
       if (selectedTask) {
         // Обновление существующего задания
-        response = await axios.put(`http://localhost:8081/admin/tasks/${selectedTask.id}`, {
+        response = await axios.put(`${apiUrl}/admin/tasks/${selectedTask.id}`, {
           title: updatedTask.title,
           content: updatedTask.content,
           lesson_id: parseInt(updatedTask.lesson_id, 10),
@@ -150,7 +151,7 @@ function AdminTasks() {
         for (const originalOption of originalOptions) {
           const optionExists = updatedOptions.some(option => option.id === originalOption.id);
           if (!optionExists) {
-            await axios.delete(`http://localhost:8081/admin/task_options/${originalOption.id}`, {
+            await axios.delete(`${apiUrl}/admin/task_options/${originalOption.id}`, {
               headers: {
                 Authorization: `Bearer ${adminToken}`,
               },
@@ -161,7 +162,7 @@ function AdminTasks() {
         // Обновление или добавление вариантов ответов
         for (const option of updatedOptions) {
           if (option.id) {
-            await axios.put(`http://localhost:8081/admin/task_options/${option.id}`, {
+            await axios.put(`${apiUrl}/admin/task_options/${option.id}`, {
               task_id: selectedTask.id,
               text: option.text,
               is_correct: option.is_correct,
@@ -171,7 +172,7 @@ function AdminTasks() {
               },
             });
           } else {
-            await axios.post('http://localhost:8081/admin/task_options', {
+            await axios.post(`${apiUrl}/admin/task_options`, {
               task_id: selectedTask.id,
               text: option.text,
               is_correct: option.is_correct,
@@ -184,7 +185,7 @@ function AdminTasks() {
         }
       } else {
         // Создание нового задания
-        response = await axios.post('http://localhost:8081/admin/tasks', {
+        response = await axios.post(`${apiUrl}/admin/tasks`, {
           title: updatedTask.title,
           content: updatedTask.content,
           lesson_id: parseInt(updatedTask.lesson_id, 10),
@@ -197,7 +198,7 @@ function AdminTasks() {
   
         // Создание вариантов ответов
         for (const option of updatedTask.task_options) {
-          await axios.post('http://localhost:8081/admin/task_options', {
+          await axios.post(`${apiUrl}/admin/task_options`, {
             task_id: response.data.task_id,
             text: option.text,
             is_correct: option.is_correct,

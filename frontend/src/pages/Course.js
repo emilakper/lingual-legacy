@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import Header from '../components/Header';
+import apiUrl from '../config';
 
 function Course() {
   const { id } = useParams();
@@ -13,7 +14,7 @@ function Course() {
       useEffect(() => {
         const fetchCourse = async () => {
           try {
-            const response = await axios.get(`http://localhost:8081/api/v1/courses/${id}`);
+            const response = await axios.get(`${apiUrl}/api/v1/courses/${id}`);
             setCourse(response.data); 
           } catch (error) {
             console.error("Ошибка при получении курса:", error);
@@ -33,7 +34,7 @@ function Course() {
       }
 
       try {
-        const response = await axios.get(`http://localhost:8081/api/v1/courses/${id}/lessons`, {
+        const response = await axios.get(`${apiUrl}/api/v1/courses/${id}/lessons`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

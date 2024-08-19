@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import UserModal from '../components/UserModal';
 import { toast } from 'react-toastify';
+import apiUrl from '../config';
 
 function AdminUsers() {
   const navigate = useNavigate();
@@ -24,7 +25,7 @@ function AdminUsers() {
     }
 
     try {
-      const response = await axios.get('http://localhost:8081/admin/users', {
+      const response = await axios.get(`${apiUrl}/admin/users`, {
         headers: {
           Authorization: `Bearer ${adminToken}`,
         },
@@ -50,7 +51,7 @@ function AdminUsers() {
     }
 
     try {
-      await axios.delete(`http://localhost:8081/admin/users/${userId}`, {
+      await axios.delete(`${apiUrl}/admin/users/${userId}`, {
         headers: {
           Authorization: `Bearer ${adminToken}`,
         },
@@ -92,14 +93,14 @@ function AdminUsers() {
     try {
       if (selectedUser) {
         //  Обновление  существующего  пользователя
-        await axios.put(`http://localhost:8081/admin/users/${selectedUser.id}`, userToSave, {
+        await axios.put(`${apiUrl}/admin/users/${selectedUser.id}`, userToSave, {
           headers: {
             Authorization: `Bearer ${adminToken}`,
           },
         });
       } else {
         //  Создание  нового  пользователя
-        await axios.post('http://localhost:8081/admin/users', userToSave, {
+        await axios.post(`${apiUrl}/admin/users`, userToSave, {
           headers: {
             Authorization: `Bearer ${adminToken}`,
           },

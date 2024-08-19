@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Line } from 'react-chartjs-2';
 import { Chart, registerables } from 'chart.js';
+import apiUrl from '../config';
 
 Chart.register(...registerables);
 
@@ -30,22 +31,22 @@ function AdminHome() {
     const fetchStats = async () => {
       try {
         const [userResponse, courseResponse, lessonResponse, taskResponse] = await Promise.all([
-          axios.get('http://localhost:8081/admin/users', {
+          axios.get(`${apiUrl}/admin/users`, {
             headers: {
               Authorization: `Bearer ${adminToken}`, 
             },
           }),
-          axios.get('http://localhost:8081/admin/courses', {
+          axios.get(`${apiUrl}/admin/courses`, {
             headers: {
               Authorization: `Bearer ${adminToken}`, 
             },
           }),
-          axios.get('http://localhost:8081/admin/lessons', {
+          axios.get(`${apiUrl}/admin/lessons`, {
             headers: {
               Authorization: `Bearer ${adminToken}`, 
             },
           }),
-          axios.get('http://localhost:8081/admin/tasks', {
+          axios.get(`${apiUrl}/admin/tasks`, {
             headers: {
               Authorization: `Bearer ${adminToken}`, 
             },
@@ -65,7 +66,7 @@ function AdminHome() {
     // Получаем данные для графика пользователей
     const fetchUserChartData = async () => {
       try {
-        const response = await axios.get('http://localhost:8081/admin/users/chart', {
+        const response = await axios.get(`${apiUrl}/admin/users/chart`, {
           headers: {
             Authorization: `Bearer ${adminToken}`, 
           },

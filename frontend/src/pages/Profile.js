@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Header from '../components/Header';
+import apiUrl from '../config';
 
 function Profile() {
   const [user, setUser] = useState(null);
@@ -16,7 +17,7 @@ function Profile() {
       }
 
       try {
-        const response = await axios.get('http://localhost:8081/api/v1/users/me', {
+        const response = await axios.get(`${apiUrl}/api/v1/users/me`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

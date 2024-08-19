@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import CourseCard from '../components/CourseCard';
 import axios from 'axios';
 import Header from '../components/Header';
+import apiUrl from '../config';
 
 function CourseList() {
   const [courses, setCourses] = useState([]);
@@ -10,7 +11,7 @@ function CourseList() {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const response = await axios.get('http://localhost:8081/api/v1/courses');
+        const response = await axios.get(`${apiUrl}/api/v1/courses`);
         setCourses(response.data.courses); 
       } catch (error) {
         console.error("Ошибка при получении курсов:", error);

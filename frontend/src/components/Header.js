@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Dropdown from './Dropdown';
 import axios from 'axios';
+import apiUrl from '../config';
 
 function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -12,7 +13,7 @@ function Header() {
     if (token) {
       setIsLoggedIn(true);
       // Получение email пользователя
-      axios.get('http://localhost:8081/api/v1/users/me', {
+      axios.get(`${apiUrl}/api/v1/users/me`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

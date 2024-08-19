@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import apiUrl from '../config';
 
 function Register() {
   const [email, setEmail] = useState('');
@@ -11,7 +12,7 @@ function Register() {
     event.preventDefault();
 
     try {
-      const response = await axios.post('http://localhost:8081/api/v1/auth/register', {
+      const response = await axios.post(`${apiUrl}/api/v1/auth/register`, {
         email,
         password,
       });

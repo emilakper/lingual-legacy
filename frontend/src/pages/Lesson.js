@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate} from 'react-router-dom';
 import axios from 'axios';
 import Header from '../components/Header';
+import apiUrl from '../config';
 
 function Lesson() {
   const { id } = useParams();
@@ -21,7 +22,7 @@ function Lesson() {
       }
 
       try {
-        const response = await axios.get(`http://localhost:8081/api/v1/lessons/${id}`, {
+        const response = await axios.get(`${apiUrl}/api/v1/lessons/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -45,7 +46,7 @@ function Lesson() {
       }
 
       try {
-        const response = await axios.get(`http://localhost:8081/api/v1/lessons/${id}/tasks`, {
+        const response = await axios.get(`${apiUrl}/api/v1/lessons/${id}/tasks`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

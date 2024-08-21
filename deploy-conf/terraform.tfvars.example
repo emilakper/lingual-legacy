@@ -1,0 +1,21 @@
+yandex_token    = "<YOUR_TOKEN>"
+yandex_cloud_id = "<YOUR_CLOUD_ID>"
+yandex_folder_id = "<YOUR_FOLDER_ID>"
+yandex_zone     = "<YOUR_ZONE>"
+
+disk_size       = <YOUR_DISK_SIZE>
+disk_image_id   = "<YOUR_IMAGE_ID>"
+
+vm_cores = {
+  ling-back  = <YOUR_CORE_SIZE>
+  ling-front = <YOUR_CORE_SIZE>
+  ling-adm   = <YOUR_CORE_SIZE>
+  ling-db    = <YOUR_CORE_SIZE>
+}
+
+vm_memory = {
+  ling-back  = <YOUR_MEMORY_SIZE>
+  ling-front = <YOUR_MEMORY_SIZE>
+  ling-adm   = <YOUR_MEMORY_SIZE>
+  ling-db    = <YOUR_MEMORY_SIZE>
+}

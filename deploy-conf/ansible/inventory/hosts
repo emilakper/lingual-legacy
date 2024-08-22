@@ -1,0 +1,2 @@
+[servers]
+ling-db ansible_host=51.250.106.140 ansible_user=ubuntu

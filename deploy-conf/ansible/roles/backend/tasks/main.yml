@@ -1,0 +1,30 @@
+---
+- name: Copy project files 
+  synchronize:
+    src: ../../../../../backend/
+    dest: /app
+    delete: yes
+    rsync_opts:
+      - "--exclude=.env"
+
+- name: Build Docker image
+  docker_image:
+    name: backend
+    build:
+      path: /app
+    source: build
+    state: present
+
+- name: Run Docker container
+  docker_container:
+    name: backend
+    image: backend
+    state: started
+    ports:
+      - "8081:8081"
+    env:
+      DB_PASSWORD: "{{ db_password }}"
+      DB_USER: "{{ db_user }}"
+      DB_NAME: "{{ db_name }}"
+      DB_HOST: "{{ db_host }}"
+      JWT_SECRET: "{{ jwt_secret }}"

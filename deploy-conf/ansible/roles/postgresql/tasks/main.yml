@@ -1,0 +1,89 @@
+---
+- name: Update package list
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600 
+  become: yes
+
+- name: Install PostgreSQL and dependencies
+  apt:
+    name:
+      - postgresql
+      - postgresql-client
+      - postgresql-common
+      - ssl-cert
+      - libpq5
+      - acl
+      - python3-psycopg2
+    state: present
+  become: yes
+
+- name: Start PostgreSQL service
+  service:
+    name: postgresql
+    state: started
+    enabled: yes
+  become: yes
+
+- name: Create database user
+  postgresql_user:
+    name: "{{ DB_user }}"
+    password: "{{ DB_password }}"
+    role_attr_flags: CREATEDB,LOGIN
+  become: yes
+  become_user: postgres
+
+- name: Create database
+  postgresql_db:
+    name: "{{ DB_name }}"
+    owner: "{{ DB_user }}"
+  become: yes
+  become_user: postgres
+
+- name: Execute SQL script to create tables
+  postgresql_query:
+    db: "{{ DB_name }}"
+    login_user: "{{ DB_user }}"
+    login_host: localhost
+    login_password: "{{ DB_password }}"
+    query: |
+      CREATE TABLE users (
+          id         SERIAL PRIMARY KEY,
+          email      VARCHAR(255) UNIQUE NOT NULL,
+          password_hash TEXT NOT NULL,
+          is_admin BOOLEAN DEFAULT FALSE,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE courses (
+          id          SERIAL PRIMARY KEY,
+          title       VARCHAR(255) NOT NULL,
+          description TEXT,
+          created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE lessons (
+          id         SERIAL PRIMARY KEY,
+          course_id  INTEGER REFERENCES courses(id),
+          title      VARCHAR(255) NOT NULL,
+          content    TEXT,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE tasks (
+          id         SERIAL PRIMARY KEY,
+          lesson_id  INTEGER REFERENCES lessons(id),
+          task_type  VARCHAR(255) NOT NULL,
+          content    TEXT,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE task_options (
+          id        SERIAL PRIMARY KEY,
+          task_id   INTEGER REFERENCES tasks(id) ON DELETE CASCADE,
+          text      TEXT NOT NULL,
+          is_correct BOOLEAN NOT NULL DEFAULT FALSE,
+          created_at TIMESTAMP NOT NULL DEFAULT NOW()
+      );
+  become: yes
+  become_user: postgres

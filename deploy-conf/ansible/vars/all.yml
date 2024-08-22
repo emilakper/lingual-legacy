@@ -1,0 +1,6 @@
+---
+db_user: 'lingua_legacy_user'
+db_password: 1234
+db_name: 'lingua_legacy'
+jwt_secret: 'my-short-and-simple-secret'
+db_host: "{{ hostvars['ling-db']['ansible_host'] }}"

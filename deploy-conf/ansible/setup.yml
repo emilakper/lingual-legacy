@@ -12,7 +12,7 @@
       when: inventory_hostname == 'ling-db'
 
     - role: docker
-      when: inventory_hostname in ['ling-db', 'ling-back']
+      when: inventory_hostname in ['ling-back']
 
     - role: backend
       vars:

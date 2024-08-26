@@ -92,7 +92,7 @@
 - name: Configure pg_hba.conf to allow remote connections
   lineinfile:
     path: /etc/postgresql/16/main/pg_hba.conf
-    line: 'host all all {{ hostvars['ling-back']['ansible_host'] }}/32 md5'
+    line: 'host all all {{ hostvars["ling-back"]["ansible_host"] }}/32 md5'
     state: present
   become: yes
   become_user: postgres
@@ -101,7 +101,7 @@
   lineinfile:
     path: /etc/postgresql/16/main/postgresql.conf
     regexp: '^listen_addresses'
-    line: 'listen_addresses = '\''*'\'''
+    line: "listen_addresses = '*' "
     state: present
   become: yes
   become_user: postgres

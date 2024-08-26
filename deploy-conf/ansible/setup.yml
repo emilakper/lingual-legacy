@@ -10,3 +10,15 @@
         DB_password: "{{ db_password }}"
         DB_name: "{{ db_name }}"
       when: inventory_hostname == 'ling-db'
+
+    - role: docker
+      when: inventory_hostname in ['ling-db', 'ling-back']
+
+    - role: backend
+      vars:
+        DB_host: "{{ db_host }}"
+        DB_user: "{{ db_user }}"
+        DB_name: "{{ db_name }}"
+        DB_password: "{{ db_password }}"
+        JWT_secret: "{{ jwt_secret }}"
+      when: inventory_hostname == 'ling-back'

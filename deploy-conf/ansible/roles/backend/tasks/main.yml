@@ -7,6 +7,19 @@
     rsync_opts:
       - "--exclude=.env"
 
+- name: Create .env file
+  copy:
+    content: |
+      DB_PASSWORD={{ DB_password }}
+      DB_USER={{ DB_user }}
+      DB_NAME={{ DB_name }}
+      DB_HOST={{ DB_host }}
+      JWT_SECRET={{ JWT_secret }}
+    dest: /app/.env
+    owner: root
+    group: root
+    mode: '0644'
+
 - name: Build Docker image
   docker_image:
     name: backend
@@ -22,9 +35,3 @@
     state: started
     ports:
       - "8081:8081"
-    env:
-      DB_PASSWORD: "{{ db_password }}"
-      DB_USER: "{{ db_user }}"
-      DB_NAME: "{{ db_name }}"
-      DB_HOST: "{{ db_host }}"
-      JWT_SECRET: "{{ jwt_secret }}"

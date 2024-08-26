@@ -22,7 +22,7 @@ variable "disk_size" {
 
 variable "disk_image_id" {
   description = "Image ID for the disk"
-  default     = "fd8e39esofgaddnc174k"
+  default     = "fd8j0uq7qcvtb65fbffl"
 }
 
 variable "vm_cores" {

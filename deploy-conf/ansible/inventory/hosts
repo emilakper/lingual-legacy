@@ -1,2 +1,5 @@
 [servers]
-ling-db ansible_host=51.250.106.140 ansible_user=ubuntu
+ling-adm ansible_host=89.169.138.89 ansible_user=ubuntu
+ling-back ansible_host=62.84.118.67 ansible_user=ubuntu
+ling-db ansible_host=89.169.134.53 ansible_user=ubuntu
+ling-front ansible_host=89.169.142.95 ansible_user=ubuntu

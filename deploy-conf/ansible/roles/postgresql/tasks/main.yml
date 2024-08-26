@@ -87,3 +87,27 @@
       );
   become: yes
   become_user: postgres
+
+
+- name: Configure pg_hba.conf to allow remote connections
+  lineinfile:
+    path: /etc/postgresql/16/main/pg_hba.conf
+    line: 'host all all {{ hostvars['ling-back']['ansible_host'] }}/32 md5'
+    state: present
+  become: yes
+  become_user: postgres
+
+- name: Configure postgresql.conf to listen on all interfaces
+  lineinfile:
+    path: /etc/postgresql/16/main/postgresql.conf
+    regexp: '^listen_addresses'
+    line: 'listen_addresses = '\''*'\'''
+    state: present
+  become: yes
+  become_user: postgres
+
+- name: Restart PostgreSQL service to apply changes
+  service:
+    name: postgresql
+    state: restarted
+  become: yes

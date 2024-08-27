@@ -21,7 +21,7 @@
 
 1. **Клонируйте этот репозиторий:**
    ```
-   git clone https://github.com/your-username/lingual-legacy.git
+   git clone https://github.com/emilakper/lingual-legacy.git
    ```
 
 2. **Перейдите в каталог бэкенда:**
@@ -41,6 +41,7 @@
    DB_NAME=<YOUR_DB_NAME>
    DB_HOST=<YOUR_DB_HOST_ADDRESS>
    JWT_SECRET=<YOUR_SECRET>
+   ALLOWED_ORIGINS="<YOUR_FRONTEND_URL>"
    ```
 
 4. **Установите зависимости:**
@@ -153,7 +154,7 @@
 
 - Убедитесь, что вы установили переменные окружения в файле `.env`.
 
-Замените `<YOUR_DB_USER>`, `<YOUR_DB_PASSWORD>`, `<YOUR_DB_NAME>`, `DB_HOST` и `<YOUR_JWT_SECRET>` на ваши фактические значения.
+Замените `<YOUR_DB_USER>`, `<YOUR_DB_PASSWORD>`, `<YOUR_DB_NAME>`, `DB_HOST`, `ALLOWED_ORIGINS` и `<YOUR_JWT_SECRET>` на ваши фактические значения.
 
 Никогда не добавляйте файл `.env` в репозиторий!
 

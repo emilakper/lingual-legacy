@@ -1,0 +1,35 @@
+---
+- name: Copy necessary project files
+  synchronize:
+    src: ../../../../../frontend/
+    dest: /app
+    rsync_opts:
+          - "--exclude=node_modules"
+          - "--exclude=build"
+          - "--exclude=.env"
+
+- name: Create .env file for frontend
+  copy:
+    content: |
+      REACT_APP_API_URL={{ REACT_APP_API_URL }}
+    dest: /app/.env
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Build Docker image for frontend
+  docker_image:
+    name: frontend
+    build:
+      path: /app
+    source: build
+    state: present
+
+- name: Run Docker container for frontend
+  docker_container:
+    name: frontend
+    image: frontend
+    state: started
+    ports:
+      - "80:80"
+    detach: true

@@ -2,7 +2,7 @@ FROM node:14
 
 WORKDIR /app
 
-COPY package-json ./
+COPY package.json ./
 
 RUN npm install 
 
@@ -13,4 +13,4 @@ RUN npm run build
 FROM nginx:alpine
 COPY --from=0 /app/build /usr/share/nginx/html
 EXPOSE 80
-RUN ["nginx","-g","daemon off;"]
+CMD ["nginx","-g","daemon off;"]

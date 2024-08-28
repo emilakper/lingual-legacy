@@ -20,6 +20,12 @@
 
 ![pic](https://github.com/user-attachments/assets/d8096d0b-7182-421e-b6a7-6a580ea67eb7)
 
+![admin1](https://github.com/user-attachments/assets/a8b8a1bc-8f5a-4a5b-8fdf-8207bb033b36)
+
+![admin2](https://github.com/user-attachments/assets/487ec950-23cb-49db-bd2c-32451f48b103)
+
+
+
 
 ## Технологии:
 

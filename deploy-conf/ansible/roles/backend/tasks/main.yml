@@ -15,6 +15,7 @@
       DB_NAME={{ DB_name }}
       DB_HOST={{ DB_host }}
       JWT_SECRET={{ JWT_secret }}
+      ALLOWED_ORIGINS="http://{{ hostvars['ling-front']['ansible_host'] }},http://{{ hostvars['ling-adm']['ansible_host'] }}"
     dest: /app/.env
     owner: root
     group: root

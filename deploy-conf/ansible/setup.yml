@@ -12,7 +12,7 @@
       when: inventory_hostname == 'ling-db'
 
     - role: docker
-      when: inventory_hostname in ['ling-back', 'ling-front']
+      when: inventory_hostname in ['ling-back', 'ling-front', 'ling-adm']
 
     - role: backend
       vars:
@@ -21,9 +21,18 @@
         DB_name: "{{ db_name }}"
         DB_password: "{{ db_password }}"
         JWT_secret: "{{ jwt_secret }}"
+        ADMIN_email: "{{ admin_email}}"
+        ADMIN_password_hash: "{{ admin_password_hash }}"
       when: inventory_hostname == 'ling-back'
 
     - role: frontend
       vars:
         REACT_APP_API_URL: "http://{{ backend_host }}:8081"
       when: inventory_hostname == 'ling-front'
+      tags:
+        - frontend
+    
+    - role: admin-panel
+      vars:
+        REACT_APP_API_URL: "http://{{ backend_host }}:8081"
+      when: inventory_hostname == 'ling-adm'

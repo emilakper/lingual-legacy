@@ -40,7 +40,6 @@
     name: docker
     state: restarted
     enabled: true
-  notify: Restart Docker
 
 - name: Получение последней версии Docker-compose
   uri:

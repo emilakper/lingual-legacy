@@ -1,7 +1,7 @@
 ---
 - name: Copy necessary project files
   synchronize:
-    src: ../../../../../frontend/
+    src: ../../../../../admin-panel/
     dest: /app
     rsync_opts:
           - "--exclude=node_modules"
@@ -18,12 +18,12 @@
     mode: '0644'
 
 - name: Build Docker image for frontend
-  command: docker build -t frontend /app
+  command: docker build -t front-adm /app
 
 - name: Run Docker container for frontend
   docker_container:
-    name: frontend
-    image: frontend
+    name: front-adm
+    image: front-adm
     state: started
     ports:
       - "80:80"

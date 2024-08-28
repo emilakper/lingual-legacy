@@ -3,8 +3,7 @@
   apt:
     update_cache: yes
     cache_valid_time: 3600 
-  become: yes
-
+  become: true
 - name: Install PostgreSQL and dependencies
   apt:
     name:
@@ -16,28 +15,28 @@
       - acl
       - python3-psycopg2
     state: present
-  become: yes
+  become: true
 
 - name: Start PostgreSQL service
   service:
     name: postgresql
     state: started
     enabled: yes
-  become: yes
+  become: true
 
 - name: Create database user
   postgresql_user:
     name: "{{ DB_user }}"
     password: "{{ DB_password }}"
     role_attr_flags: CREATEDB,LOGIN
-  become: yes
+  become: true
   become_user: postgres
 
 - name: Create database
   postgresql_db:
     name: "{{ DB_name }}"
     owner: "{{ DB_user }}"
-  become: yes
+  become: true
   become_user: postgres
 
 - name: Execute SQL script to create tables
@@ -85,7 +84,19 @@
           is_correct BOOLEAN NOT NULL DEFAULT FALSE,
           created_at TIMESTAMP NOT NULL DEFAULT NOW()
       );
-  become: yes
+  become: true
+  become_user: postgres
+
+- name: Insert admin user into users table
+  postgresql_query:
+    db: "{{ DB_name }}"
+    login_user: "{{ DB_user }}"
+    login_host: localhost
+    login_password: "{{ DB_password }}"
+    query: |
+      INSERT INTO users (email, password_hash, is_admin)
+      VALUES ('{{ ADMIN_email }}', '{{ ADMIN_password_hash }}', TRUE);
+  become: true
   become_user: postgres
 
 
@@ -94,7 +105,7 @@
     path: /etc/postgresql/16/main/pg_hba.conf
     line: 'host all all {{ hostvars["ling-back"]["ansible_host"] }}/32 md5'
     state: present
-  become: yes
+  become: true
   become_user: postgres
 
 - name: Configure postgresql.conf to listen on all interfaces
@@ -103,11 +114,11 @@
     regexp: '^listen_addresses'
     line: "listen_addresses = '*' "
     state: present
-  become: yes
+  become: true
   become_user: postgres
 
 - name: Restart PostgreSQL service to apply changes
   service:
     name: postgresql
     state: restarted
-  become: yes
+  become: true

@@ -5,3 +5,5 @@ db_name: 'lingua_legacy'
 jwt_secret: 'my-short-and-simple-secret'
 db_host: "{{ hostvars['ling-db']['ansible_host'] }}"
 backend_host: "{{ hostvars['ling-back']['ansible_host'] }}"
+admin_email: "startadmin@main.com"
+admin_password_hash: "$2a$10$ngHo5lsHDF68zRnI.X/jmepcoV.ulJI9Ig7ZzP.y53/PGCoq4al8S"

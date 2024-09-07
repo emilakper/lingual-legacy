@@ -39,7 +39,7 @@ function Course() {
             Authorization: `Bearer ${token}`,
           },
         });
-        setLessons(response.data);
+        setLessons(response.data || []);
       } catch (error) {
         console.error('Ошибка при получении курса и уроков:', error);
         // ... Обработка ошибки (отображение сообщения об ошибке)

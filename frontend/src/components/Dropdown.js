@@ -21,8 +21,8 @@ function Dropdown({ email }) {
       <div>
         <button
           type="button"
-          className="inline-flex justify-center w-full rounded-md border border-green-500 shadow-sm px-4 py-2 
-          bg-green-500 text-sm font-medium text-gray-700 hover:bg-green-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          className="inline-flex justify-center w-full rounded-md border border-[#5fe3b0] shadow-sm px-4 py-2 
+          bg-[#5fe3b0] text-sm font-medium text-gray-700 hover:bg-[#5fa392] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           id="options-menu"
           aria-expanded="true"
           aria-haspopup="true"
@@ -42,7 +42,8 @@ function Dropdown({ email }) {
         >
           <div className="py-1" role="none">
             <Link to="/profile" className="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem">Мой профиль</Link>
-            <button onClick={() => { localStorage.removeItem('token'); window.location.reload(); }} className="text-gray-700 block w-full text-left px-4 py-2 text-sm hover:bg-gray-100" role="menuitem">Выйти</button>
+            <button onClick={() => { localStorage.removeItem('token'); window.location.reload(); }}
+             className="text-gray-700 block w-full text-left px-4 py-2 text-sm hover:bg-gray-100" role="menuitem">Выйти</button>
           </div>
         </div>
       )}

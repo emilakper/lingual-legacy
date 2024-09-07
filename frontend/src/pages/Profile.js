@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Header from '../components/Header';
 import apiUrl from '../config';
+import ProgressB from '../components/ProgressB';
+import CourseCard from '../components/CourseCard';
 
 function Profile() {
   const [user, setUser] = useState(null);
@@ -123,16 +125,16 @@ function Profile() {
               <p className="text-gray-600">ID: {user.id}</p>
             </div>
           </div>
-          
+
           <div className="flex flex-col mb-4 ">
-          {isEditing && (
-            <>
-              <input type="file" onChange={handleFileChange} className="mb-2" />
-              <button onClick={handleUpload} className="bg-blue-500 hover:bg-blue-700 w-56 text-white font-bold py-2 px-4 rounded">
-                Загрузить изображение
-              </button>
-            </>
-          )}
+            {isEditing && (
+              <>
+                <input type="file" onChange={handleFileChange} className="mb-2" />
+                <button onClick={handleUpload} className="bg-[#5d79b0] hover:bg-[#42487a] w-56 text-white font-bold py-2 px-4 rounded">
+                  Загрузить изображение
+                </button>
+              </>
+            )}
           </div>
 
           <div>
@@ -140,7 +142,7 @@ function Profile() {
             {isEditing ? (<></>) :
               (<button
                 onClick={handleEdit}
-                className="bg-green-500 hover:bg-gray-400 text-white font-bold py-2 px-4 rounded mb-3">Редактировать
+                className="bg-[#08bf6d] hover:bg-gray-400 text-white font-bold py-2 px-4 rounded mb-3">Редактировать
               </button>
               )}
             <h3 className="text-xl font-bold text-gray-800 mb-4">Информация о пользователе</h3>
@@ -167,8 +169,8 @@ function Profile() {
                   />
                 </p>
                 <div className="flex space-x-4">
-                  <button onClick={handleSave} className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-10 rounded mt-4">Сохранить</button>
-                  <button onClick={handleCancel} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-10 rounded mt-4">Отменить</button>
+                  <button onClick={handleSave} className="bg-[#08bf6d] hover:bg-green-700 text-white font-bold py-2 px-10 rounded mt-4">Сохранить</button>
+                  <button onClick={handleCancel} className="bg-[#f55b67] hover:bg-red-700 text-white font-bold py-2 px-10 rounded mt-4">Отменить</button>
                 </div>
               </>
             ) : (
@@ -186,6 +188,28 @@ function Profile() {
 
 
 
+          </div>
+        </div>
+        <div className="container mx-auto py-12 flex-grow">
+          <div className="bg-white p-8 rounded-lg shadow-md">
+            <div className='flex flex-row space-x-12'> 
+
+              <div className='bg-[#ede7e6] p-8 rounded-lg shadow-md items-center p-8'>
+              <p> Работаем Ваня</p>
+              <ProgressB Progress={1} id={"1"} />
+              </div>
+
+              <div className='bg-[#ede7e6] p-8 rounded-lg shadow-md items-center p-8'>
+              <p> Работаем Миша</p>
+              <ProgressB Progress={0.6} id = "2"/>
+              </div>
+
+              <div className='bg-[#ede7e6] p-8 rounded-lg shadow-md items-center p-8'>
+              <p> Работаем Егор</p>
+              <ProgressB Progress={0.2} id ="3" />
+              </div>
+
+            </div>
           </div>
         </div>
       </main>

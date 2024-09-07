@@ -44,9 +44,10 @@ function Header() {
             <Link to="/about" className="flex items-center py-2 px-4 text-white hover:bg-gray-200 hover:text-gray-800 transition duration-300 ease-in-out">О нас</Link>
             <Link to="/contacts" className="flex items-center py-2 px-4 text-white hover:bg-gray-200 hover:text-gray-800 transition duration-300 ease-in-out">Контакты</Link>
           </div>
-          <div className="flex space-x-4">
+          <div className="flex space-x-4 ">
             {isLoggedIn ? (
-              <Dropdown email={userEmail} />
+              // <Dropdown name={userName} />
+              <Dropdown email={userEmail}/>
             ) : (
               <>
                 <Link to="/login" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Войти</Link>

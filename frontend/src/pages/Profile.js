@@ -9,6 +9,8 @@ function Profile() {
   //она пытается редактировать
   const [isEditing, setIsEditing] = useState(false);
   const [editedUser, setEditedUser] = useState({});
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [imageUrl, setImageUrl] = useState('');
 
   const navigate = useNavigate();
 
@@ -29,6 +31,7 @@ function Profile() {
         setUser(response.data);
         //
         setEditedUser(response.data);
+        setImageUrl(response.data.profilePicture || '/profile-pic-ex-i.png');
       } catch (error) {
         console.error('Ошибка при получении профиля пользователя:', error);
       }
@@ -74,7 +77,32 @@ function Profile() {
     setIsEditing(false);
   };
 
+  const handleFileChange = (e) => {
+    setSelectedFile(e.target.files[0]);
+  };
 
+  const handleUpload = async () => {
+    const token = localStorage.getItem('token');
+    if (!token || !selectedFile) {
+      alert('Пожалуйста, выберите файл');
+      return;
+    }
+
+    const data = new FormData();
+    data.append("profilePicture", selectedFile);
+    try {
+      const response = await axios.post(`${apiUrl}/api/v1/users/upload`, data, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setImageUrl(response.data.profilePicture); // Обновляем URL изображения
+      setSelectedFile(null);
+    } catch (error) {
+      console.error('Ошибка при загрузке изображения:', error);
+    }
+
+  };
 
   if (!user) {
     return <div>Загрузка...</div>;
@@ -89,31 +117,46 @@ function Profile() {
       <main className="container mx-auto py-12 flex-grow">
         <div className="bg-white p-8 rounded-lg shadow-md">
           <div className="flex items-center mb-6">
-            <img src="/profile-pic-ex-i.png" alt="Profile" className="w-24 h-24 rounded-full mr-6" />
+            <img src={imageUrl} alt="Profile" className="w-32 h-32 rounded-full mr-6" />
             <div>
               <h2 className="text-2xl font-bold text-gray-800">{user.email}</h2>
               <p className="text-gray-600">ID: {user.id}</p>
             </div>
           </div>
-          <div>
-          {/* {она начала рабоать офигетбл} */}
-          {isEditing ? (<></>) :
-          (<button
-              onClick={handleEdit}
-              className="bg-green-500 hover:bg-gray-400 text-white font-bold py-2 px-4 rounded">Редактировать
-            </button>
+          
+          <div className="flex flex-col mb-4 ">
+          {isEditing && (
+            <>
+              <input type="file" onChange={handleFileChange} className="mb-2" />
+              <button onClick={handleUpload} className="bg-blue-500 hover:bg-blue-700 w-56 text-white font-bold py-2 px-4 rounded">
+                Загрузить изображение
+              </button>
+            </>
           )}
+          </div>
+
+          <div>
+            {/* {она начала рабоать офигетбл} */}
+            {isEditing ? (<></>) :
+              (<button
+                onClick={handleEdit}
+                className="bg-green-500 hover:bg-gray-400 text-white font-bold py-2 px-4 rounded mb-3">Редактировать
+              </button>
+              )}
             <h3 className="text-xl font-bold text-gray-800 mb-4">Информация о пользователе</h3>
 
 
 
             {/* {она начала рабоать офигетбл} */}
-            {isEditing ? ( // Условный рендеринг для режима редактирования
+            {isEditing ? (
               <>
+                {/* <input type="file" onChange={handleFileChange} />
+                <button onClick={handleUpload} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-2">Загрузить изображение</button>  */}
+
                 <p><span className="font-bold">Email:</span> {user.email}</p>
                 <p><span className="font-bold">Дата регистрации:</span> {new Date(user.created_at).toLocaleDateString()}</p>
                 {/* Новые смешные поля */}
-                <p><span className="font-bold">Статус:</span> {user.is_admin ? "Мастер" : "Студент"}</p>
+                <p><span className="font-bold">Статус:</span> {user.is_admin ? "Администратор" : "Студент"}</p>
                 <p>
                   <span className="font-bold">Имя пользователя:</span>
                   <input
@@ -124,18 +167,18 @@ function Profile() {
                   />
                 </p>
                 <div className="flex space-x-4">
-                <button onClick={handleSave} className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-10 rounded mt-4">Сохранить</button>
-                <button onClick= {handleCancel} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-10 rounded mt-4">Отменить</button>
+                  <button onClick={handleSave} className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-10 rounded mt-4">Сохранить</button>
+                  <button onClick={handleCancel} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-10 rounded mt-4">Отменить</button>
                 </div>
               </>
             ) : (
               <>
 
                 <p><span className="font-bold">Email:</span> {user.email}</p>
+                {/* Добавлено Ириной*/}
+                <p><span className="font-bold">Имя пользователя:</span> {user.username ? user.username : " "}</p>
+                <p><span className="font-bold">Статус:</span> {user.is_admin ? "Администратор" : "Студент"}</p>
                 <p><span className="font-bold">Дата регистрации:</span> {new Date(user.created_at).toLocaleDateString()}</p>
-                {/* Новые смешные поля */}
-                <p><span className="font-bold">Статус:</span> {user.is_admin ? "Мастер" : "Студент"}</p>
-                <p><span className="font-bold">Имя пользователя:</span> {user.username}</p>
               </>
             )}
             {/* она закончила */}

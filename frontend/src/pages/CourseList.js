@@ -12,7 +12,7 @@ function CourseList() {
     const fetchCourses = async () => {
       try {
         const response = await axios.get(`${apiUrl}/api/v1/courses`);
-        setCourses(response.data.courses); 
+        setCourses(response.data.courses || []); 
       } catch (error) {
         console.error("Ошибка при получении курсов:", error);
       }

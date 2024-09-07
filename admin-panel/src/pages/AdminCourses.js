@@ -30,7 +30,7 @@ function AdminCourses() {
           Authorization: `Bearer ${adminToken}`,
         },
       });
-      setCourses(response.data.courses);
+      setCourses(response.data.courses || []);
     } catch (error) {
       console.error("Ошибка получения курсов:", error);
       // Добавить обработку ошибки, например, отображение сообщения пользователю

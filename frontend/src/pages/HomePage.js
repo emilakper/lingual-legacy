@@ -13,7 +13,7 @@ function HomePage() {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const response = await axios.get(`${apiUrl}/api/v1/courses`);
+        const response = await axios.get(`${apiUrl}/api/v1/courses`) || [];
         setCourses(shuffle(response.data.courses).slice(0, 3));
       } catch (error) {
         console.error("Ошибка при получении курсов:", error);

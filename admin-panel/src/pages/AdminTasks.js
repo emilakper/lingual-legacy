@@ -31,7 +31,7 @@ function AdminTasks() {
           Authorization: `Bearer ${adminToken}`,
         },
       });
-      setTasks(response.data.tasks);
+      setTasks(response.data.tasks || []);
     } catch (error) {
       console.error("Ошибка получения заданий:", error);
       // Добавить обработку ошибки, например, отображение сообщения пользователю
@@ -52,7 +52,7 @@ function AdminTasks() {
           Authorization: `Bearer ${adminToken}`,
         },
       });
-      setLessons(response.data.lessons);
+      setLessons(response.data.lessons || []);
     } catch (error) {
       console.error("Ошибка получения уроков:", error);
       // Добавить обработку ошибки, например, отображение сообщения пользователю

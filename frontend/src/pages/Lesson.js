@@ -51,7 +51,7 @@ function Lesson() {
             Authorization: `Bearer ${token}`,
           },
         });
-        setTasks(response.data.tasks);
+        setTasks(response.data.tasks || []);
       } catch (error) {
         console.error('Ошибка при получении заданий:', error);
       }

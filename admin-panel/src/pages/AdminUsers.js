@@ -30,7 +30,7 @@ function AdminUsers() {
           Authorization: `Bearer ${adminToken}`,
         },
       });
-      setUsers(response.data.users);
+      setUsers(response.data.users || []);
     } catch (error) {
       console.error("Ошибка получения пользователей:", error);
       // Добавить обработку ошибки, например, отображение сообщения пользователю

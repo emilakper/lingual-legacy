@@ -832,6 +832,23 @@ func DeleteAdminTaskOption(db *sql.DB) gin.HandlerFunc {
 	}
 }
 
+func PostPromoteToAdmin(db *sql.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		commonUserId, err := strconv.ParseInt(c.Param("id"), 10, 64)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"eror": "Неверный ID пользователя"})
+			return
+		}
+		_, err = db.Exec(`UPDATE users SET is_admin = true WHERE id = $1`, commonUserId)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка сервера"})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{"message": "Пользователь успешно повышен до админа"})
+	}
+}
+
 // GetAdminUsersChart - обработчик для GET /admin/users/chart
 func GetAdminUsersChart(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {

@@ -138,6 +138,7 @@ func main() {
 		admin.DELETE("/task_options/:id", api.JWTAuthMiddleware(), api.DeleteAdminTaskOption(db))
 		admin.GET("/task_options/task/:task_id", api.JWTAuthMiddleware(), api.GetTaskOptionsByTaskID(db))
 		admin.GET("/users/chart", api.JWTAuthMiddleware(), api.GetAdminUsersChart(db))
+		admin.POST("/promote_to_admin/:id", api.JWTAuthMiddleware(), api.PostPromoteToAdmin(db))
 	}
 
 	router.Run(":8081")
